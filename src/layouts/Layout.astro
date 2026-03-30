@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title?: string;
   description?: string;
@@ -12,7 +14,6 @@ const { title = 'Sintelo — Capital Allocation Advisory', description = 'Encont
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <title>{title}</title>
-  <link rel="stylesheet" href="/styles/global.css" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <!-- Open Graph -->
   <meta property="og:title" content={title} />
@@ -65,14 +66,12 @@ nav {
   background: var(--bg);
   z-index: 100;
 }
-
 .logo {
   font-family: var(--serif);
   font-size: 22px;
   font-weight: 500;
   letter-spacing: 0.08em;
 }
-
 .nav-links {
   display: flex;
   gap: 2rem;
@@ -81,9 +80,7 @@ nav {
   color: var(--muted);
   letter-spacing: 0.04em;
 }
-
 .nav-links a:hover { color: var(--accent); }
-
 .nav-cta {
   font-size: 12px;
   border: 0.5px solid var(--accent);
@@ -93,9 +90,7 @@ nav {
   font-weight: 400;
   transition: background 0.2s;
 }
-
 .nav-cta:hover { background: var(--accent-dim); }
-
 footer {
   display: flex;
   justify-content: space-between;
@@ -103,16 +98,13 @@ footer {
   padding: 2rem 3rem;
   border-top: 0.5px solid var(--border);
 }
-
 .footer-logo {
   font-family: var(--serif);
   font-size: 16px;
   color: var(--faint);
   letter-spacing: 0.08em;
 }
-
 .footer-copy { font-size: 12px; color: var(--faint); }
-
 @media (max-width: 768px) {
   nav { padding: 1.25rem 1.5rem; }
   .nav-links { display: none; }
