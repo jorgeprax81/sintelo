@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf());
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+---
+
+<Layout title="Blog — Sintelo" description="Ideas sobre capital, operaciones y valor en empresas industriales medianas en México.">
+
+<section class="blog-hero">
+  <div class="label">Blog</div>
+  <h1>Ideas sobre capital y valor<br>en empresas industriales.</h1>
+  <p class="hero-sub">Publicaciones sobre ROIC, working capital, due diligence operacional y toma de decisiones con disciplina de capital.</p>
+</section>
+
+<section class="blog-list">
+  {posts.map(post => (
+    <a href={`/blog/${post.slug}`} class="post-row">
+      <div class="post-left">
+        <div class="post-tag">{post.data.categoria}</div>
+        <div class="post-title">{post.data.titulo}</div>
+        <p class="post-excerpt">{post.data.descripcion}</p>
+      </div>
+      <div class="post-right">
+        <div class="post-date">{formatDate(post.data.fecha)}</div>
+        <div class="post-read">Leer →</div>
+      </div>
+    </a>
+  ))}
+</section>
+
+</Layout>
+
+<style>
+.blog-hero {
+  padding: 6rem 3rem 4rem;
+  border-bottom: 0.5px solid var(--border);
+}
+.label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  font-weight: 400;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.blog-hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  color: #F0EBE0;
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+}
+.hero-sub { font-size: 15px; color: var(--muted); max-width: 520px; }
+
+.blog-list { padding: 0 3rem 5rem; }
+
+.post-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3rem;
+  padding: 2.5rem 0;
+  border-bottom: 0.5px solid var(--border);
+  transition: background 0.15s;
+}
+.post-row:hover .post-title { color: var(--accent); }
+.post-row:hover .post-read { color: var(--accent); }
+
+.post-left { flex: 1; }
+.post-tag { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+.post-title { font-family: var(--serif); font-size: 24px; color: #E8E3D8; line-height: 1.25; margin-bottom: 0.75rem; transition: color 0.2s; }
+.post-excerpt { font-size: 13px; color: #5A5450; line-height: 1.7; max-width: 560px; }
+
+.post-right { text-align: right; flex-shrink: 0; }
+.post-date { font-size: 12px; color: #5A5450; margin-bottom: 0.75rem; }
+.post-read { font-size: 12px; color: var(--muted); transition: color 0.2s; }
+
+@media (max-width: 768px) {
+  .blog-hero, .blog-list { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .post-row { flex-direction: column; gap: 1rem; }
+  .post-right { text-align: left; }
+}
+</style>

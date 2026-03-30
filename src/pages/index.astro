@@ -1,0 +1,520 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf())
+  .slice(0, 3);
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+---
+
+<Layout>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">Capital Allocation Advisory · Tampico, México</div>
+  <h1>Encontramos el valor <em>oculto</em> en su empresa.</h1>
+  <p class="hero-sub">La mayoría de los dueños de empresas industriales conocen sus ventas y su EBITDA. Pocos saben cuánto capital tienen invertido — y qué retorno genera ese capital.</p>
+  <div class="hero-ctas">
+    <a href="#contacto" class="btn-primary">Solicitar diagnóstico</a>
+    <a href="#metodologia" class="btn-secondary">Ver cómo funciona</a>
+  </div>
+</section>
+
+<!-- EL PROBLEMA -->
+<section id="problema" class="section">
+  <div class="label">El problema</div>
+  <h2>¿Cuánto vale realmente su empresa<br>— y qué la está frenando?</h2>
+  <p class="section-body">La mayoría de los dueños conocen sus ventas y su EBITDA. Pocos saben cuánto capital tienen invertido, qué retorno genera ese capital — y dónde están perdiendo valor cada día.</p>
+  <div class="problema-grid">
+    <div class="pain">
+      <div class="pain-title">Capital atrapado en operaciones</div>
+      <p class="pain-text">Inventario excesivo, clientes que pagan tarde, activos subutilizados. El dinero está en el negocio pero no trabaja.</p>
+    </div>
+    <div class="pain">
+      <div class="pain-title">Margen que se escapa sin que nadie lo vea</div>
+      <p class="pain-text">Productos que se venden pero no generan utilidad real. Costos de procurement sin negociación. Overhead que creció con los años.</p>
+    </div>
+    <div class="pain">
+      <div class="pain-title">Decisiones de inversión sin criterio de retorno</div>
+      <p class="pain-text">Capex basado en intuición. Sin un ROIC mínimo requerido. Sin saber si el siguiente peso invertido genera valor o lo destruye.</p>
+    </div>
+    <div class="pain pain-full">
+      <div class="pain-title">Estos no son problemas de gestión.</div>
+      <p class="pain-text">Son problemas de información y de claridad económica.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESIS ROIC -->
+<section class="section">
+  <div class="label">Nuestra tesis</div>
+  <h2>El ROIC es el número más importante<br>de su empresa.</h2>
+  <p class="section-body">El retorno sobre capital invertido se mueve en dos palancas. Cada decisión operativa mueve una de ellas. Nuestro trabajo es hacerlo visible — y ejecutable.</p>
+  <div class="roic-formula">
+    <div class="roic-left">
+      <span class="roic-acronym">ROIC</span>
+      <span class="roic-eq">=</span>
+      <div class="roic-fraction">
+        <div class="roic-num">NOPAT (utilidad operativa neta)</div>
+        <div class="roic-line"></div>
+        <div class="roic-den">Capital Invertido (activos operativos)</div>
+      </div>
+    </div>
+  </div>
+  <div class="roic-grid">
+    <div class="palanca">
+      <div class="palanca-label">Palanca A</div>
+      <div class="palanca-title">Margen operativo</div>
+      <div class="palanca-items">Pricing · Costos · Mezcla de productos</div>
+      <div class="palanca-arrow">→ Mueve el NOPAT</div>
+    </div>
+    <div class="palanca">
+      <div class="palanca-label">Palanca B</div>
+      <div class="palanca-title">Rotación de capital</div>
+      <div class="palanca-items">Working capital · Activos · Capex</div>
+      <div class="palanca-arrow">→ Mueve el capital invertido</div>
+    </div>
+  </div>
+</section>
+
+<!-- METODOLOGÍA -->
+<section id="metodologia" class="section">
+  <div class="label">Lo que hace Sintelo</div>
+  <h2>Un programa estructurado para maximizar<br>el ROIC de su empresa.</h2>
+  <div class="fases-grid">
+    <div class="fase">
+      <div class="fase-num">1</div>
+      <div class="fase-title">Diagnóstico</div>
+      <div class="fase-time">2–6 semanas</div>
+      <ul class="fase-list">
+        <li>Solicitud de datos financieros y operativos</li>
+        <li>Escaneo de la cadena de valor</li>
+        <li>Cálculo de ROIC actual</li>
+        <li>Benchmarking vs. sector</li>
+        <li>Heatmap de levers por impacto</li>
+      </ul>
+    </div>
+    <div class="fase">
+      <div class="fase-num">2</div>
+      <div class="fase-title">Priorización</div>
+      <div class="fase-time">1–2 semanas</div>
+      <ul class="fase-list">
+        <li>Matriz impacto vs. esfuerzo</li>
+        <li>Quick wins (primeros 90 días)</li>
+        <li>Roadmap de olas</li>
+        <li>Business case cuantificado</li>
+        <li>Plan de implementación</li>
+      </ul>
+    </div>
+    <div class="fase">
+      <div class="fase-num">3</div>
+      <div class="fase-title">Implementación</div>
+      <div class="fase-time">12–24 meses</div>
+      <ul class="fase-list">
+        <li>Ejecución por olas</li>
+        <li>Dashboard mensual de ROIC</li>
+        <li>Tracking de ahorro acumulado</li>
+        <li>Capacidades internas instaladas</li>
+        <li>Informe final de valor creado</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 10 LEVERS -->
+<section class="section">
+  <div class="label">La metodología</div>
+  <h2>Analizamos la cadena de valor completa.</h2>
+  <p class="section-body">El diagnóstico define cuáles de los 10 levers tienen mayor impacto en su empresa específica.</p>
+  <div class="levers-grid">
+    <div class="lever-group">
+      <div class="lever-group-title">Revenue improvement</div>
+      <div class="lever-item">Pricing optimization</div>
+      <div class="lever-item">Sales enhancement</div>
+    </div>
+    <div class="lever-group">
+      <div class="lever-group-title">Reducción de costos</div>
+      <div class="lever-item">Procurement</div>
+      <div class="lever-item">Producción</div>
+      <div class="lever-item">Distribución</div>
+      <div class="lever-item">Postventa</div>
+      <div class="lever-item">Overhead</div>
+      <div class="lever-item">IT</div>
+      <div class="lever-item">Complejidad de producto</div>
+      <div class="lever-item">Costos de producto</div>
+    </div>
+    <div class="lever-group">
+      <div class="lever-group-title">Capital</div>
+      <div class="lever-item">Working capital</div>
+      <div class="lever-item">Optimización de capex</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios" class="section">
+  <div class="label">Cómo trabajamos</div>
+  <h2>Cuatro formas de trabajar juntos.</h2>
+  <div class="services-grid">
+    <div class="service">
+      <div class="service-num">01 —</div>
+      <div class="service-title">Diagnóstico de capital</div>
+      <p class="service-desc">Calculamos su ROIC actual y lo descomponemos. Identificamos las 3 a 5 palancas de mayor impacto y las cuantificamos en pesos. Al final: ROIC actual, ROIC potencial, y una recomendación clara de qué atacar primero.</p>
+      <div class="service-tag">Precio fijo · entrega en 2–4 semanas · sin compromiso de implementación</div>
+    </div>
+    <div class="service">
+      <div class="service-num">02 —</div>
+      <div class="service-title">Implementación acelerada</div>
+      <p class="service-desc">Con el diagnóstico en mano, nos metemos a la operación semana a semana. Frameworks de ejecución, seguimiento de iniciativas, valor capturado en 30 a 120 días.</p>
+      <div class="service-tag">Retainer de 90–120 días · cadencia semanal</div>
+    </div>
+    <div class="service">
+      <div class="service-num">03 —</div>
+      <div class="service-title">Monitoreo mensual de ROIC</div>
+      <p class="service-desc">Dashboard de ROIC actualizado automáticamente, informe mensual de una página, revisión con el equipo directivo una vez al mes. Disciplina de capital a largo plazo.</p>
+      <div class="service-tag">Retainer mensual · largo plazo</div>
+    </div>
+    <div class="service">
+      <div class="service-num">04 —</div>
+      <div class="service-title">Due diligence operacional</div>
+      <p class="service-desc">Los mismos modelos del diagnóstico aplicados a una empresa que usted quiere adquirir. ROIC histórico real, capital de trabajo verdadero, y potencial de mejora post-adquisición — antes de cerrar el trato.</p>
+      <div class="service-tag">Para compradores estratégicos, family offices y fondos de private equity</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADOS -->
+<section id="resultados" class="section">
+  <div class="label">Resultados típicos</div>
+  <h2>En empresas industriales medianas.</h2>
+  <p class="section-body">Rangos basados en programas de performance improvement en manufactura, alimentos y distribución.</p>
+  <div class="resultados-nums">
+    <div class="resultado-num">
+      <div class="resultado-val">+3–6pp</div>
+      <div class="resultado-label">mejora de margen EBITDA</div>
+    </div>
+    <div class="resultado-num">
+      <div class="resultado-val">20–40%</div>
+      <div class="resultado-label">reducción de working capital</div>
+    </div>
+    <div class="resultado-num">
+      <div class="resultado-val">+4–10pp</div>
+      <div class="resultado-label">incremento de ROIC</div>
+    </div>
+  </div>
+  <div class="resultados-ejemplos">
+    <div class="ejemplo">Una empresa con $100M en ventas y 8% de EBITDA que mejora 4 puntos genera <strong>$4M anuales adicionales en flujo</strong> — sin tocar las ventas.</div>
+    <div class="ejemplo">Una reducción de 30% en working capital <strong>libera capital que puede reinvertirse o distribuirse hoy.</strong></div>
+    <div class="ejemplo">El programa se paga solo — <strong>generalmente en el primer trimestre de implementación.</strong></div>
+  </div>
+</section>
+
+<!-- POR QUÉ AHORA -->
+<section class="section">
+  <div class="label">El momento importa</div>
+  <h2>¿Por qué hacer esto ahora?</h2>
+  <div class="ahora-grid">
+    <div class="ahora-item">
+      <div class="ahora-num">01</div>
+      <div class="ahora-title">El costo del capital subió y no bajará pronto</div>
+      <p class="ahora-text">Con tasas altas, tener capital atrapado en inventario o cuentas por cobrar tiene un costo real y creciente. Cada día de retraso en liberarlo tiene precio.</p>
+    </div>
+    <div class="ahora-item">
+      <div class="ahora-num">02</div>
+      <div class="ahora-title">Sus competidores ya están optimizando</div>
+      <p class="ahora-text">Las empresas que mejoran su ROIC primero consolidan ventajas de costo y escala. Las que esperan se encuentran compitiendo con estructuras más eficientes.</p>
+    </div>
+    <div class="ahora-item">
+      <div class="ahora-num">03</div>
+      <div class="ahora-title">El diagnóstico es el primer paso, no el compromiso</div>
+      <p class="ahora-text">No tiene que comprometerse a un programa de 24 meses. El diagnóstico es independiente y ya tiene valor por sí mismo como herramienta de decisión.</p>
+    </div>
+  </div>
+</section>
+
+<!-- POR QUÉ SINTELO -->
+<section class="section">
+  <div class="label">Por qué Sintelo</div>
+  <h2>Lo que nos diferencia de una<br>consultoría tradicional.</h2>
+  <div class="diferenciadores-grid">
+    <div class="diferenciador">
+      <div class="dif-title">Lente de ROIC total — no ROI por proyecto</div>
+      <p class="dif-text">Evaluamos cada iniciativa en términos de su impacto en el ROIC total de la empresa. No vendemos ahorros aislados por área.</p>
+    </div>
+    <div class="diferenciador">
+      <div class="dif-title">Claridad antes del compromiso</div>
+      <p class="dif-text">El diagnóstico le da un número: ROIC actual y ROIC potencial. Usted decide si quiere ejecutar. Sin contratos de implementación por adelantado.</p>
+    </div>
+    <div class="diferenciador">
+      <div class="dif-title">Diagnóstico en semanas, no en meses</div>
+      <p class="dif-text">Metodología analítica potenciada por IA. Entregamos el diagnóstico inicial en 2–4 semanas con datos concretos.</p>
+    </div>
+    <div class="diferenciador">
+      <div class="dif-title">Socio de largo plazo, no consultor de paso</div>
+      <p class="dif-text">Nuestro modelo está diseñado para acompañar la implementación y monitorear el ROIC mes a mes — no entregar un reporte y desaparecer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" class="section">
+  <div class="label">Blog</div>
+  <h2>Ideas sobre capital, operaciones<br>y valor en empresas industriales.</h2>
+  <div class="blog-grid">
+    {posts.map(post => (
+      <a href={`/blog/${post.slug}`} class="post-card">
+        <div class="post-tag">{post.data.categoria}</div>
+        <div class="post-title">{post.data.titulo}</div>
+        <p class="post-excerpt">{post.data.descripcion}</p>
+        <div class="post-meta">
+          <span>{formatDate(post.data.fecha)}</span>
+          <span class="post-read">Leer →</span>
+        </div>
+      </a>
+    ))}
+  </div>
+  <div class="blog-cta">
+    <a href="/blog" class="btn-outline">Ver todos los artículos →</a>
+  </div>
+</section>
+
+<!-- JORGE -->
+<section id="jorge" class="section">
+  <div class="label">Quién es Sintelo</div>
+  <div class="about-grid">
+    <div class="about-left">
+      <div class="avatar">JC</div>
+      <div class="about-name">Jorge Castro</div>
+      <div class="about-role">Fundador · Tampico, México</div>
+      <p class="about-bio">Ingeniería industrial · Analítica · Transformación operativa. Sintelo opera en la intersección de finanzas, operaciones y analítica — con un solo objetivo: hacer que su capital genere más retorno.</p>
+    </div>
+    <div class="about-right">
+      <div class="exp-group">
+        <div class="exp-group-label">Formación</div>
+        <div class="exp-item">
+          <div class="exp-company">ITESM</div>
+          <div class="exp-role">Ingeniería Industrial</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-company">Carnegie Mellon University</div>
+          <div class="exp-role">MSc in Information Systems Management</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-company">ITESM</div>
+          <div class="exp-role">MSc in Management of IT</div>
+        </div>
+      </div>
+      <div class="exp-group">
+        <div class="exp-group-label">Experiencia</div>
+        <div class="exp-item">
+          <div class="exp-company">London Consulting Group · 6 años</div>
+          <div class="exp-role">Director de Business Intelligence · Transformación operativa en LATAM, EE.UU. y Canadá · +$25M USD en mejoras documentadas</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-company">Microsoft Azure</div>
+          <div class="exp-role">Supply Chain y analítica aplicada a operaciones industriales</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-company">Accenture</div>
+          <div class="exp-role">Integración de adquisiciones · Due diligence operativo</div>
+        </div>
+        <div class="exp-item last">
+          <div class="exp-company">Elanboard · Fundador</div>
+          <div class="exp-role">ERP / SAP B1 para empresas manufactureras en México</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRÓXIMOS PASOS -->
+<section class="section">
+  <div class="label">Cómo empezar</div>
+  <h2>Empiece con el diagnóstico.</h2>
+  <p class="section-body">Un primer paso concreto, de precio fijo, sin compromiso de implementación. Al final tiene un análisis concreto de su empresa — úselo para decidir qué sigue.</p>
+  <div class="pasos-grid">
+    <div class="paso">
+      <div class="paso-num">1</div>
+      <div class="paso-title">NDA firmado</div>
+      <p class="paso-text">Acordamos confidencialidad antes de compartir cualquier dato.</p>
+    </div>
+    <div class="paso-sep">→</div>
+    <div class="paso">
+      <div class="paso-num">2</div>
+      <div class="paso-title">Kick-off + solicitud de datos</div>
+      <p class="paso-text">Enviamos el checklist de información. Reunión de 1 hora.</p>
+    </div>
+    <div class="paso-sep">→</div>
+    <div class="paso">
+      <div class="paso-num">3</div>
+      <div class="paso-title">Diagnóstico en 2–4 semanas</div>
+      <p class="paso-text">Su ROIC actual, ROIC potencial y las palancas priorizadas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contacto" class="cta-section">
+  <h2>Encontramos el valor oculto<br>en su empresa.</h2>
+  <p class="cta-sub">Precio fijo · entrega en 2–4 semanas · sin contrato de implementación por adelantado.</p>
+  <a href="mailto:jorge@sintelo.com" class="btn-primary">Solicitar diagnóstico →</a>
+  <div class="contact-email">jorge@sintelo.com</div>
+  <div class="contact-location">Tampico, México</div>
+</section>
+
+</Layout>
+
+<style>
+/* HERO */
+.hero { padding: 7rem 3rem 6rem; border-bottom: 0.5px solid var(--border); }
+.eyebrow { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 400; margin-bottom: 1.5rem; text-transform: uppercase; }
+.hero h1 { font-size: clamp(38px, 5.5vw, 60px); font-weight: 400; line-height: 1.1; color: #F0EBE0; max-width: 720px; margin-bottom: 2rem; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero-sub { font-size: 16px; color: var(--muted); max-width: 520px; margin-bottom: 2.5rem; line-height: 1.8; }
+.hero-ctas { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+/* BUTTONS */
+.btn-primary { display: inline-block; background: var(--accent); color: #fff; padding: 0.75rem 2rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; transition: opacity 0.2s; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-secondary { font-size: 13px; color: var(--muted); letter-spacing: 0.04em; border-bottom: 0.5px solid rgba(138,132,122,0.4); padding-bottom: 1px; }
+.btn-outline { display: inline-block; border: 0.5px solid rgba(255,255,255,0.15); color: var(--muted); padding: 0.6rem 1.5rem; font-size: 13px; font-family: var(--sans); letter-spacing: 0.06em; transition: border-color 0.2s, color 0.2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SECTIONS */
+.section { padding: 5rem 3rem; border-bottom: 0.5px solid var(--border); }
+.label { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 400; text-transform: uppercase; margin-bottom: 2rem; }
+.section h2 { font-size: clamp(26px, 3.5vw, 38px); color: #F0EBE0; line-height: 1.2; margin-bottom: 1.5rem; }
+.section-body { color: var(--muted); font-size: 15px; max-width: 640px; line-height: 1.8; margin-bottom: 0.5rem; }
+
+/* PROBLEMA */
+.problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+.pain { padding: 1.5rem; border-left: 1px solid var(--accent-border); }
+.pain-full { grid-column: 1 / -1; border-left: 1px solid var(--accent-border); border-color: rgba(74,143,212,0.5); }
+.pain-title { font-family: var(--serif); font-size: 17px; color: var(--accent); margin-bottom: 0.5rem; }
+.pain-text { color: var(--dim); font-size: 14px; line-height: 1.7; }
+
+/* ROIC */
+.roic-formula { margin: 2.5rem 0; padding: 2rem; background: rgba(74,143,212,0.03); border: 0.5px solid var(--accent-border); display: inline-flex; align-items: center; gap: 1.5rem; }
+.roic-acronym { font-family: var(--serif); font-size: 32px; color: var(--accent); font-weight: 500; }
+.roic-eq { font-family: var(--serif); font-size: 28px; color: var(--muted); }
+.roic-fraction { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+.roic-num { font-size: 13px; color: #C8C3B8; }
+.roic-line { width: 100%; height: 0.5px; background: var(--muted); }
+.roic-den { font-size: 13px; color: var(--muted); }
+.roic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+.palanca { background: var(--accent-dim); border: 0.5px solid var(--accent-border); padding: 2rem; }
+.palanca-label { font-size: 11px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem; }
+.palanca-title { font-family: var(--serif); font-size: 24px; color: #F0EBE0; margin-bottom: 0.5rem; }
+.palanca-items { font-size: 13px; color: var(--dim); margin-bottom: 0.75rem; }
+.palanca-arrow { font-size: 12px; color: var(--accent); letter-spacing: 0.04em; }
+
+/* FASES */
+.fases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+.fase { border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; }
+.fase-num { font-family: var(--serif); font-size: 40px; color: var(--accent); opacity: 0.4; line-height: 1; margin-bottom: 0.75rem; }
+.fase-title { font-family: var(--serif); font-size: 22px; color: #F0EBE0; margin-bottom: 0.25rem; }
+.fase-time { font-size: 12px; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 1.25rem; }
+.fase-list { list-style: none; padding: 0; border-top: 0.5px solid var(--border); padding-top: 1rem; }
+.fase-list li { font-size: 13px; color: var(--dim); padding: 0.35rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.03); line-height: 1.5; }
+.fase-list li::before { content: "—  "; color: var(--accent); font-size: 11px; }
+
+/* 10 LEVERS */
+.levers-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2rem; margin-top: 3rem; }
+.lever-group { border: 0.5px solid rgba(255,255,255,0.07); padding: 1.75rem; }
+.lever-group-title { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid var(--border); }
+.lever-item { font-size: 14px; color: var(--dim); padding: 0.4rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.03); }
+
+/* SERVICIOS */
+.services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 3rem; }
+.service { border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; transition: border-color 0.2s; }
+.service:hover { border-color: var(--accent-border); }
+.service-num { font-family: var(--serif); font-size: 13px; color: var(--accent); margin-bottom: 1rem; letter-spacing: 0.1em; }
+.service-title { font-family: var(--serif); font-size: 22px; color: #F0EBE0; margin-bottom: 0.75rem; line-height: 1.2; }
+.service-desc { font-size: 13px; color: var(--dim); line-height: 1.7; margin-bottom: 1rem; }
+.service-tag { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; border-top: 0.5px solid var(--border); padding-top: 0.75rem; }
+
+/* RESULTADOS */
+.resultados-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+.resultado-num { text-align: center; padding: 2rem; background: rgba(74,143,212,0.04); border: 0.5px solid var(--accent-border); }
+.resultado-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: 0.75rem; }
+.resultado-label { font-size: 13px; color: var(--dim); line-height: 1.5; }
+.resultados-ejemplos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+.ejemplo { font-size: 13px; color: var(--dim); line-height: 1.7; padding: 1.25rem; border-left: 1px solid var(--accent-border); }
+.ejemplo strong { color: #C8C3B8; font-weight: 500; }
+
+/* POR QUÉ AHORA */
+.ahora-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+.ahora-item { padding: 2rem; border: 0.5px solid rgba(255,255,255,0.07); }
+.ahora-num { font-family: var(--serif); font-size: 13px; color: var(--accent); margin-bottom: 1rem; letter-spacing: 0.1em; }
+.ahora-title { font-family: var(--serif); font-size: 19px; color: #F0EBE0; margin-bottom: 0.75rem; line-height: 1.3; }
+.ahora-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
+
+/* DIFERENCIADORES */
+.diferenciadores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+.diferenciador { padding: 2rem; border: 0.5px solid rgba(255,255,255,0.07); transition: border-color 0.2s; }
+.diferenciador:hover { border-color: var(--accent-border); }
+.dif-title { font-family: var(--serif); font-size: 19px; color: var(--accent); margin-bottom: 0.75rem; line-height: 1.3; }
+.dif-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
+
+/* BLOG */
+.blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+.post-card { display: block; border: 0.5px solid rgba(255,255,255,0.07); padding: 1.75rem; transition: border-color 0.2s, background 0.2s; }
+.post-card:hover { border-color: var(--accent-border); background: rgba(74,143,212,0.02); }
+.post-tag { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+.post-title { font-family: var(--serif); font-size: 20px; color: #E8E3D8; line-height: 1.3; margin-bottom: 0.75rem; }
+.post-excerpt { font-size: 13px; color: #5A5450; line-height: 1.7; margin-bottom: 1.5rem; }
+.post-meta { display: flex; justify-content: space-between; font-size: 11px; color: #5A5450; border-top: 0.5px solid var(--border); padding-top: 0.75rem; }
+.post-read { color: var(--accent); }
+.blog-cta { margin-top: 2rem; }
+
+/* ABOUT */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+.avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-dim); border: 0.5px solid var(--accent-border); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 24px; color: var(--accent); margin-bottom: 1.5rem; }
+.about-name { font-family: var(--serif); font-size: 28px; color: #F0EBE0; margin-bottom: 0.25rem; }
+.about-role { font-size: 13px; color: var(--dim); margin-bottom: 1.5rem; }
+.about-bio { font-size: 14px; color: var(--dim); line-height: 1.8; max-width: 400px; }
+.exp-group { margin-bottom: 2rem; }
+.exp-group-label { font-size: 11px; letter-spacing: 0.15em; color: #5A5450; text-transform: uppercase; margin-bottom: 1rem; }
+.exp-item { padding: 0.75rem 0; border-bottom: 0.5px solid var(--border); }
+.exp-item.last { border: none; }
+.exp-company { font-size: 13px; color: var(--accent); margin-bottom: 0.2rem; }
+.exp-role { font-size: 13px; color: var(--dim); line-height: 1.6; }
+
+/* PRÓXIMOS PASOS */
+.pasos-grid { display: flex; align-items: flex-start; gap: 1rem; margin-top: 3rem; }
+.paso { flex: 1; border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; }
+.paso-sep { font-family: var(--serif); font-size: 24px; color: var(--accent); opacity: 0.4; padding-top: 2rem; flex-shrink: 0; }
+.paso-num { font-family: var(--serif); font-size: 36px; color: var(--accent); opacity: 0.3; line-height: 1; margin-bottom: 0.75rem; }
+.paso-title { font-family: var(--serif); font-size: 18px; color: #F0EBE0; margin-bottom: 0.5rem; line-height: 1.3; }
+.paso-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
+
+/* CTA */
+.cta-section { text-align: center; padding: 7rem 3rem; }
+.cta-section h2 { font-size: clamp(32px, 5vw, 52px); color: #F0EBE0; margin-bottom: 1rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.1; }
+.cta-sub { color: var(--dim); font-size: 14px; letter-spacing: 0.04em; margin-bottom: 2.5rem; }
+.contact-email { font-family: var(--serif); font-size: 18px; color: var(--accent); margin-top: 2rem; }
+.contact-location { font-size: 12px; color: #4A4440; margin-top: 0.5rem; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .levers-grid { grid-template-columns: 1fr; }
+  .fases-grid { grid-template-columns: 1fr; }
+  .ahora-grid { grid-template-columns: 1fr; }
+  .resultados-nums { grid-template-columns: 1fr; }
+  .resultados-ejemplos { grid-template-columns: 1fr; }
+  .pasos-grid { flex-direction: column; }
+  .paso-sep { display: none; }
+}
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem; }
+  .section { padding: 3rem 1.5rem; }
+  .problema-grid, .roic-grid, .services-grid, .blog-grid, .about-grid, .diferenciadores-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .pain-full { grid-column: 1; }
+  .cta-section { padding: 4rem 1.5rem; }
+  .roic-formula { flex-direction: column; text-align: center; }
+}
+</style>
