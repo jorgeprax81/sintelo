@@ -42,7 +42,7 @@ function formatDate(date: Date) {
       <div class="pain-title">Decisiones de inversión sin criterio de retorno</div>
       <p class="pain-text">Capex basado en intuición. Sin un ROIC mínimo requerido. Sin saber si el siguiente peso invertido genera valor o lo destruye.</p>
     </div>
-    <div class="pain pain-full">
+    <div class="pain pain-accent">
       <div class="pain-title">Estos no son problemas de gestión.</div>
       <p class="pain-text">Son problemas de información y de claridad económica.</p>
     </div>
@@ -55,14 +55,12 @@ function formatDate(date: Date) {
   <h2>El ROIC es el número más importante<br>de su empresa.</h2>
   <p class="section-body">El retorno sobre capital invertido se mueve en dos palancas. Cada decisión operativa mueve una de ellas. Nuestro trabajo es hacerlo visible — y ejecutable.</p>
   <div class="roic-formula">
-    <div class="roic-left">
-      <span class="roic-acronym">ROIC</span>
-      <span class="roic-eq">=</span>
-      <div class="roic-fraction">
-        <div class="roic-num">NOPAT (utilidad operativa neta)</div>
-        <div class="roic-line"></div>
-        <div class="roic-den">Capital Invertido (activos operativos)</div>
-      </div>
+    <span class="roic-acronym">ROIC</span>
+    <span class="roic-eq">=</span>
+    <div class="roic-fraction">
+      <div class="roic-num">NOPAT (utilidad operativa neta)</div>
+      <div class="roic-line"></div>
+      <div class="roic-den">Capital Invertido (activos operativos)</div>
     </div>
   </div>
   <div class="roic-grid">
@@ -369,7 +367,6 @@ function formatDate(date: Date) {
 </Layout>
 
 <style>
-/* HERO */
 .hero { padding: 7rem 3rem 6rem; border-bottom: 0.5px solid var(--border); }
 .eyebrow { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 400; margin-bottom: 1.5rem; text-transform: uppercase; }
 .hero h1 { font-size: clamp(38px, 5.5vw, 60px); font-weight: 400; line-height: 1.1; color: #F0EBE0; max-width: 720px; margin-bottom: 2rem; }
@@ -377,27 +374,23 @@ function formatDate(date: Date) {
 .hero-sub { font-size: 16px; color: var(--muted); max-width: 520px; margin-bottom: 2.5rem; line-height: 1.8; }
 .hero-ctas { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 
-/* BUTTONS */
 .btn-primary { display: inline-block; background: var(--accent); color: #fff; padding: 0.75rem 2rem; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; transition: opacity 0.2s; }
 .btn-primary:hover { opacity: 0.88; }
 .btn-secondary { font-size: 13px; color: var(--muted); letter-spacing: 0.04em; border-bottom: 0.5px solid rgba(138,132,122,0.4); padding-bottom: 1px; }
 .btn-outline { display: inline-block; border: 0.5px solid rgba(255,255,255,0.15); color: var(--muted); padding: 0.6rem 1.5rem; font-size: 13px; font-family: var(--sans); letter-spacing: 0.06em; transition: border-color 0.2s, color 0.2s; }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
-/* SECTIONS */
 .section { padding: 5rem 3rem; border-bottom: 0.5px solid var(--border); }
 .label { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 400; text-transform: uppercase; margin-bottom: 2rem; }
 .section h2 { font-size: clamp(26px, 3.5vw, 38px); color: #F0EBE0; line-height: 1.2; margin-bottom: 1.5rem; }
 .section-body { color: var(--muted); font-size: 15px; max-width: 640px; line-height: 1.8; margin-bottom: 0.5rem; }
 
-/* PROBLEMA */
-.problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+.problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; align-items: start; }
 .pain { padding: 1.5rem; border-left: 1px solid var(--accent-border); }
-.pain-full { grid-column: 1 / -1; border-left: 1px solid var(--accent-border); border-color: rgba(74,143,212,0.5); }
+.pain-accent { border-left-color: rgba(74,143,212,0.5); }
 .pain-title { font-family: var(--serif); font-size: 17px; color: var(--accent); margin-bottom: 0.5rem; }
 .pain-text { color: var(--dim); font-size: 14px; line-height: 1.7; }
 
-/* ROIC */
 .roic-formula { margin: 2.5rem 0; padding: 2rem; background: rgba(74,143,212,0.03); border: 0.5px solid var(--accent-border); display: inline-flex; align-items: center; gap: 1.5rem; }
 .roic-acronym { font-family: var(--serif); font-size: 32px; color: var(--accent); font-weight: 500; }
 .roic-eq { font-family: var(--serif); font-size: 28px; color: var(--muted); }
@@ -412,7 +405,6 @@ function formatDate(date: Date) {
 .palanca-items { font-size: 13px; color: var(--dim); margin-bottom: 0.75rem; }
 .palanca-arrow { font-size: 12px; color: var(--accent); letter-spacing: 0.04em; }
 
-/* FASES */
 .fases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
 .fase { border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; }
 .fase-num { font-family: var(--serif); font-size: 40px; color: var(--accent); opacity: 0.4; line-height: 1; margin-bottom: 0.75rem; }
@@ -422,13 +414,11 @@ function formatDate(date: Date) {
 .fase-list li { font-size: 13px; color: var(--dim); padding: 0.35rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.03); line-height: 1.5; }
 .fase-list li::before { content: "—  "; color: var(--accent); font-size: 11px; }
 
-/* 10 LEVERS */
 .levers-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2rem; margin-top: 3rem; }
 .lever-group { border: 0.5px solid rgba(255,255,255,0.07); padding: 1.75rem; }
 .lever-group-title { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid var(--border); }
 .lever-item { font-size: 14px; color: var(--dim); padding: 0.4rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.03); }
 
-/* SERVICIOS */
 .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 3rem; }
 .service { border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; transition: border-color 0.2s; }
 .service:hover { border-color: var(--accent-border); }
@@ -437,7 +427,6 @@ function formatDate(date: Date) {
 .service-desc { font-size: 13px; color: var(--dim); line-height: 1.7; margin-bottom: 1rem; }
 .service-tag { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; border-top: 0.5px solid var(--border); padding-top: 0.75rem; }
 
-/* RESULTADOS */
 .resultados-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
 .resultado-num { text-align: center; padding: 2rem; background: rgba(74,143,212,0.04); border: 0.5px solid var(--accent-border); }
 .resultado-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: 0.75rem; }
@@ -446,21 +435,18 @@ function formatDate(date: Date) {
 .ejemplo { font-size: 13px; color: var(--dim); line-height: 1.7; padding: 1.25rem; border-left: 1px solid var(--accent-border); }
 .ejemplo strong { color: #C8C3B8; font-weight: 500; }
 
-/* POR QUÉ AHORA */
 .ahora-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
 .ahora-item { padding: 2rem; border: 0.5px solid rgba(255,255,255,0.07); }
 .ahora-num { font-family: var(--serif); font-size: 13px; color: var(--accent); margin-bottom: 1rem; letter-spacing: 0.1em; }
 .ahora-title { font-family: var(--serif); font-size: 19px; color: #F0EBE0; margin-bottom: 0.75rem; line-height: 1.3; }
 .ahora-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
 
-/* DIFERENCIADORES */
 .diferenciadores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
 .diferenciador { padding: 2rem; border: 0.5px solid rgba(255,255,255,0.07); transition: border-color 0.2s; }
 .diferenciador:hover { border-color: var(--accent-border); }
 .dif-title { font-family: var(--serif); font-size: 19px; color: var(--accent); margin-bottom: 0.75rem; line-height: 1.3; }
 .dif-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
 
-/* BLOG */
 .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
 .post-card { display: block; border: 0.5px solid rgba(255,255,255,0.07); padding: 1.75rem; transition: border-color 0.2s, background 0.2s; }
 .post-card:hover { border-color: var(--accent-border); background: rgba(74,143,212,0.02); }
@@ -471,7 +457,6 @@ function formatDate(date: Date) {
 .post-read { color: var(--accent); }
 .blog-cta { margin-top: 2rem; }
 
-/* ABOUT */
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
 .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-dim); border: 0.5px solid var(--accent-border); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 24px; color: var(--accent); margin-bottom: 1.5rem; }
 .about-name { font-family: var(--serif); font-size: 28px; color: #F0EBE0; margin-bottom: 0.25rem; }
@@ -484,7 +469,6 @@ function formatDate(date: Date) {
 .exp-company { font-size: 13px; color: var(--accent); margin-bottom: 0.2rem; }
 .exp-role { font-size: 13px; color: var(--dim); line-height: 1.6; }
 
-/* PRÓXIMOS PASOS */
 .pasos-grid { display: flex; align-items: flex-start; gap: 1rem; margin-top: 3rem; }
 .paso { flex: 1; border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; }
 .paso-sep { font-family: var(--serif); font-size: 24px; color: var(--accent); opacity: 0.4; padding-top: 2rem; flex-shrink: 0; }
@@ -492,14 +476,12 @@ function formatDate(date: Date) {
 .paso-title { font-family: var(--serif); font-size: 18px; color: #F0EBE0; margin-bottom: 0.5rem; line-height: 1.3; }
 .paso-text { font-size: 13px; color: var(--dim); line-height: 1.7; }
 
-/* CTA */
 .cta-section { text-align: center; padding: 7rem 3rem; }
 .cta-section h2 { font-size: clamp(32px, 5vw, 52px); color: #F0EBE0; margin-bottom: 1rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.1; }
 .cta-sub { color: var(--dim); font-size: 14px; letter-spacing: 0.04em; margin-bottom: 2.5rem; }
 .contact-email { font-family: var(--serif); font-size: 18px; color: var(--accent); margin-top: 2rem; }
 .contact-location { font-size: 12px; color: #4A4440; margin-top: 0.5rem; }
 
-/* RESPONSIVE */
 @media (max-width: 900px) {
   .levers-grid { grid-template-columns: 1fr; }
   .fases-grid { grid-template-columns: 1fr; }
@@ -513,7 +495,6 @@ function formatDate(date: Date) {
   .hero { padding: 4rem 1.5rem; }
   .section { padding: 3rem 1.5rem; }
   .problema-grid, .roic-grid, .services-grid, .blog-grid, .about-grid, .diferenciadores-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .pain-full { grid-column: 1; }
   .cta-section { padding: 4rem 1.5rem; }
   .roic-formula { flex-direction: column; text-align: center; }
 }
