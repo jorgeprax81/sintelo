@@ -1,0 +1,166 @@
+<section class="section" id="demo">
+  <div class="label">Motor de diagnóstico</div>
+  <h2>Vea cómo funciona el análisis.</h2>
+  <p class="section-body">Seleccione un análisis y vea cómo Sintelo procesa datos reales de una empresa manufacturera en segundos.</p>
+
+  <div class="demo-preguntas">
+    <button class="demo-btn" data-key="margen">Margen bruto por categoría</button>
+    <button class="demo-btn" data-key="yoy">Crecimiento de ventas YoY</button>
+    <button class="demo-btn" data-key="inventario">Días de inventario</button>
+    <button class="demo-btn" data-key="roic">ROIC proxy</button>
+    <button class="demo-btn" data-key="mix">Mix de ventas y descuentos</button>
+  </div>
+
+  <div id="demo-loading" style="display:none;">
+    <span class="loading-dot"></span> Analizando datos...
+  </div>
+
+  <div id="demo-resultado" style="display:none;">
+    <div id="demo-analisis"></div>
+    <div id="demo-tabla"></div>
+    <div class="demo-disclaimer">Cálculos proxy basados en datos operativos de empresa manufacturera demo. No sustituyen estados financieros auditados.</div>
+  </div>
+</section>
+
+<script>
+  const QUERIES: Record<string, string> = {
+    margen: `SELECT pc.name AS categoria, ROUND(SUM(sod.linetotal)::numeric, 0) AS ingresos, ROUND(SUM(sod.orderqty * p.standardcost)::numeric, 0) AS costo, ROUND((SUM(sod.linetotal) - SUM(sod.orderqty * p.standardcost))::numeric, 0) AS margen_bruto, ROUND(((SUM(sod.linetotal) - SUM(sod.orderqty * p.standardcost)) / NULLIF(SUM(sod.linetotal), 0) * 100)::numeric, 1) AS margen_pct FROM sales.salesorderheader soh JOIN sales.salesorderdetail sod ON soh.salesorderid = sod.salesorderid JOIN production.product p ON sod.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid JOIN production.productcategory pc ON ps.productcategoryid = pc.productcategoryid WHERE soh.status = 5 GROUP BY pc.name ORDER BY margen_pct DESC`,
+    yoy: `SELECT EXTRACT(YEAR FROM orderdate) AS anio, ROUND(SUM(totaldue)::numeric, 0) AS revenue FROM sales.salesorderheader WHERE status = 5 GROUP BY anio ORDER BY anio`,
+    inventario: `WITH cogs AS (SELECT ps.productcategoryid, SUM(sod.orderqty * p.standardcost) AS cogs_total FROM sales.salesorderheader soh JOIN sales.salesorderdetail sod ON soh.salesorderid = sod.salesorderid JOIN production.product p ON sod.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid WHERE soh.status = 5 GROUP BY ps.productcategoryid), inv AS (SELECT ps.productcategoryid, SUM(pi.quantity * p.standardcost) AS inv_valor FROM production.productinventory pi JOIN production.product p ON pi.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid GROUP BY ps.productcategoryid) SELECT pc.name AS categoria, ROUND((inv.inv_valor / NULLIF(cogs.cogs_total, 0) * 365)::numeric, 0) AS dias_inventario, ROUND((cogs.cogs_total / NULLIF(inv.inv_valor, 0))::numeric, 2) AS rotacion FROM cogs JOIN inv ON cogs.productcategoryid = inv.productcategoryid JOIN production.productcategory pc ON pc.productcategoryid = cogs.productcategoryid ORDER BY dias_inventario DESC`,
+    roic: `WITH ventas AS (SELECT ps.productcategoryid, SUM(sod.linetotal) AS revenue, SUM(sod.orderqty * p.standardcost) AS cogs FROM sales.salesorderheader soh JOIN sales.salesorderdetail sod ON soh.salesorderid = sod.salesorderid JOIN production.product p ON sod.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid WHERE soh.status = 5 AND EXTRACT(YEAR FROM soh.orderdate) = 2013 GROUP BY ps.productcategoryid), inv AS (SELECT ps.productcategoryid, SUM(pi.quantity * p.standardcost) AS inv_valor FROM production.productinventory pi JOIN production.product p ON pi.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid GROUP BY ps.productcategoryid) SELECT pc.name AS categoria, ROUND(((v.revenue - v.cogs) * 0.75 / NULLIF(inv.inv_valor, 0) * 100)::numeric, 1) AS roic_proxy_pct FROM ventas v JOIN inv ON v.productcategoryid = inv.productcategoryid JOIN production.productcategory pc ON pc.productcategoryid = v.productcategoryid ORDER BY roic_proxy_pct DESC`,
+    mix: `SELECT pc.name AS categoria, ROUND((SUM(sod.linetotal) / SUM(SUM(sod.linetotal)) OVER () * 100)::numeric, 1) AS mix_pct, ROUND((AVG(sod.unitpricediscount) * 100)::numeric, 2) AS descuento_prom_pct FROM sales.salesorderheader soh JOIN sales.salesorderdetail sod ON soh.salesorderid = sod.salesorderid JOIN production.product p ON sod.productid = p.productid JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid JOIN production.productcategory pc ON ps.productcategoryid = pc.productcategoryid WHERE soh.status = 5 GROUP BY pc.name ORDER BY mix_pct DESC`
+  };
+
+  const LABELS: Record<string, string> = {
+    margen: 'Margen bruto por categoría',
+    yoy: 'Crecimiento de ventas YoY',
+    inventario: 'Días de inventario por categoría',
+    roic: 'ROIC proxy por categoría',
+    mix: 'Mix de ventas y descuentos'
+  };
+
+  document.querySelectorAll('.demo-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const key = (btn as HTMLElement).dataset.key || '';
+      const sql = QUERIES[key];
+      const label = LABELS[key];
+
+      document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('demo-resultado')!.style.display = 'none';
+      document.getElementById('demo-loading')!.style.display = 'flex';
+
+      const res = await fetch('/api/diagnostico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pregunta: label, sql })
+      });
+
+      const data = await res.json();
+      document.getElementById('demo-loading')!.style.display = 'none';
+      document.getElementById('demo-resultado')!.style.display = 'block';
+
+      document.getElementById('demo-analisis')!.innerHTML = 
+        `<p>${data.analisis?.replace(/\n\n/g, '</p><p>').replace(/\*\*/g, '') || ''}</p>`;
+
+      if (data.datos?.length > 0) {
+        const headers = data.columnas.map((c: string) => `<th>${c.replace(/_/g, ' ')}</th>`).join('');
+        const rows = data.datos.map((row: any) =>
+          `<tr>${data.columnas.map((c: string) => `<td>${row[c] ?? '—'}</td>`).join('')}</tr>`
+        ).join('');
+        document.getElementById('demo-tabla')!.innerHTML =
+          `<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+      }
+    });
+  });
+</script>
+
+<style>
+  .demo-preguntas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .demo-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--faint);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .demo-btn:hover {
+    border-color: var(--accent-border);
+    color: var(--text);
+  }
+  .demo-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+  #demo-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 1.5rem 0;
+  }
+  .loading-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  #demo-analisis {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    border-left: 2px solid var(--accent);
+    padding-left: 1.25rem;
+  }
+  #demo-analisis p { margin-bottom: 0.75rem; }
+  #demo-tabla {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-family: var(--sans);
+  }
+  th {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--faint);
+  }
+  td {
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+  .demo-disclaimer {
+    font-size: 0.78rem;
+    color: var(--dim);
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+</style>
