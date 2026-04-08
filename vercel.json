@@ -1,9 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "framework": "astro",
-  "functions": {
-    "api/**": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  "framework": "astro"
 }
