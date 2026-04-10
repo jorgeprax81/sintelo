@@ -18,17 +18,28 @@ const [revenueRes, margenRes, diasRes, paretoRes, mixRes, territorioRes, precioR
       JOIN (SELECT DISTINCT ON (productid) productid, standardcost FROM production.productcosthistory ORDER BY productid, startdate DESC) c ON sod.productid=c.productid
       GROUP BY salesorderid) d ON soh.salesorderid=d.salesorderid WHERE soh.status=5`),
   pool.query(`
-    SELECT pc.name AS categoria, ROUND(SUM(pi.quantity*c.standardcost)/((SELECT SUM(d.orderqty*c2.standardcost) FROM sales.salesorderdetail d
-      JOIN sales.salesorderheader soh ON d.salesorderid=soh.salesorderid
-      JOIN (SELECT DISTINCT ON (productid) productid, standardcost FROM production.productcosthistory ORDER BY productid, startdate DESC) c2 ON d.productid=c2.productid
-      WHERE soh.status=5 AND EXTRACT(YEAR FROM soh.orderdate)=2024 AND d.productid=pi.productid GROUP BY d.productid HAVING SUM(d.orderqty*c2.standardcost)>0)/365),0) AS dias
+    SELECT pc.name AS categoria,
+      ROUND(
+        SUM(pi.quantity * c.standardcost) /
+        NULLIF((
+          SELECT SUM(d.orderqty * c2.standardcost) / 365.0
+          FROM sales.salesorderdetail d
+          JOIN sales.salesorderheader soh ON d.salesorderid = soh.salesorderid
+          JOIN (SELECT DISTINCT ON (productid) productid, standardcost FROM production.productcosthistory ORDER BY productid, startdate DESC) c2 ON d.productid = c2.productid
+          WHERE soh.status = 5
+          AND EXTRACT(YEAR FROM soh.orderdate) = 2024
+          AND d.productid = pi.productid
+        ), 0)
+      , 0) AS dias
     FROM production.productinventory pi
-    JOIN production.product p ON pi.productid=p.productid
-    JOIN production.productsubcategory ps ON p.productsubcategoryid=ps.productsubcategoryid
-    JOIN production.productcategory pc ON ps.productcategoryid=pc.productcategoryid
-    JOIN (SELECT DISTINCT ON (productid) productid, standardcost FROM production.productcosthistory ORDER BY productid, startdate DESC) c ON pi.productid=c.productid
+    JOIN production.product p ON pi.productid = p.productid
+    JOIN production.productsubcategory ps ON p.productsubcategoryid = ps.productsubcategoryid
+    JOIN production.productcategory pc ON ps.productcategoryid = pc.productcategoryid
+    JOIN (SELECT DISTINCT ON (productid) productid, standardcost FROM production.productcosthistory ORDER BY productid, startdate DESC) c ON pi.productid = c.productid
     WHERE pc.name IN ('Components','Bikes','Clothing','Accessories')
-    GROUP BY pc.name ORDER BY dias DESC NULLS LAST`),
+    GROUP BY pc.name
+    ORDER BY dias DESC NULLS LAST
+  `),
   pool.query(`
     WITH rps AS (SELECT p.productid, SUM(sod.orderqty*sod.unitprice*(1-sod.unitpricediscount)) AS revenue
       FROM sales.salesorderdetail sod JOIN sales.salesorderheader soh ON sod.salesorderid=soh.salesorderid
