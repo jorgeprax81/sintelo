@@ -78,6 +78,104 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
   </div>
 </section>
 
+<!-- DIAGNÓSTICO EJECUTIVO -->
+<section class="exec-section">
+  <div class="label">Diagnóstico ejecutivo</div>
+  <h2>ROIC en deterioro. <em>El capital creció más que los retornos.</em></h2>
+  <p class="exec-sub">Revenue creció 15% en 8 años. El capital invertido creció 9%. Pero el ROIC cayó de 13.2% a 10.1% — con un mínimo de 5.6% en Year 5. Cada peso adicional generó menos retorno que el anterior.</p>
+
+  <div class="roic-chart-wrap">
+    <div class="chart-sublabel">ROIC por periodo · tendencia</div>
+    <div style="position:relative;height:200px;max-width:800px;">
+      <canvas id="roicChart" role="img" aria-label="ROIC por periodo de Year 1 a Year 8">ROIC: Y1 13.2%, Y2 12.4%, Y3 11.8%, Y4 8.8%, Y5 5.6%, Y6 10.6%, Y7 10.1%, Y8 10.2%</canvas>
+    </div>
+  </div>
+
+  <div class="hallazgos-grid">
+    <div class="hallazgo hallazgo-critical">
+      <div class="h-num">01</div>
+      <div class="h-lever">Lever: Overhead · SG&A</div>
+      <div class="h-title">SG&A creció 25% mientras revenue creció 15%.</div>
+      <p class="h-body">EBITDA colapsó de 7.4% a 4.4% entre Years 1-5. El margen bruto es estable — el problema es la estructura operativa que no escaló con eficiencia.</p>
+      <div class="h-accion">→ Palanca A · Auditoría de overhead</div>
+    </div>
+    <div class="hallazgo hallazgo-critical">
+      <div class="h-num">02</div>
+      <div class="h-lever">Lever: Capex · Capital invertido</div>
+      <div class="h-title">$126B en capex en 4 años sin retorno proporcional.</div>
+      <p class="h-body">PP&E creció $34B entre Years 3-6 con free cash flow negativo. La empresa se financió con deuda — LTD creció $27B. El capex no generó el ROIC esperado.</p>
+      <div class="h-accion">→ Palanca B · Criterio ROIC mínimo para inversiones</div>
+    </div>
+    <div class="hallazgo">
+      <div class="h-num">03</div>
+      <div class="h-lever">Lever: Working capital</div>
+      <div class="h-title">Inventario Year 7 se disparó $20B sin explicación clara.</div>
+      <p class="h-body">Inventario estable $44-48B en Years 1-6, salta a $65B en Year 7. CxP creciente indica presión de liquidez financiada con proveedores.</p>
+      <div class="h-accion">→ Palanca B · Monitorear inventario Year 7-8</div>
+    </div>
+  </div>
+
+  <div class="bc-grid">
+    <div class="bc-item">
+      <div class="bc-num">01 —</div>
+      <div class="bc-title">Recuperar 2pp de EBITDA vía reducción de overhead</div>
+      <div class="bc-val">~$11B adicionales de NOPAT</div>
+      <p class="bc-desc">Sobre $559B de revenue, 2pp de margen equivalen a $11B de NOPAT adicional — sin tocar las ventas.</p>
+    </div>
+    <div class="bc-item">
+      <div class="bc-num">02 —</div>
+      <div class="bc-title">Freeze de capex improductivo y criterio ROIC mínimo</div>
+      <div class="bc-val">~$8B de capital liberado anualmente</div>
+      <p class="bc-desc">Reducir capex 20% sobre el promedio de $32B/año libera capital para reducir deuda o distribuirse.</p>
+    </div>
+    <div class="bc-item">
+      <div class="bc-num">03 —</div>
+      <div class="bc-title">Normalizar inventario de $65B a $48B</div>
+      <div class="bc-val">~$17B de capital liberado</div>
+      <p class="bc-desc">Regresar al nivel histórico de Years 1-6 libera $17B de working capital inmovilizado.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const roicData = [13.2, 12.4, 11.8, 8.8, 5.6, 10.6, 10.1, 10.2];
+  const labels = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Year 8'];
+  const colors = roicData.map(v => v < 8 ? '#D44A4A' : v > 12 ? '#4A9A7A' : '#4A8FD4');
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+  script.onload = () => {
+    new Chart(document.getElementById('roicChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'ROIC',
+          data: roicData,
+          borderColor: '#4A8FD4',
+          borderWidth: 1.5,
+          pointBackgroundColor: colors,
+          pointBorderColor: colors,
+          pointRadius: 5,
+          tension: 0.3,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#7A7470', font: { size: 10 }, autoSkip: false }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 0, max: 16, ticks: { color: '#7A7470', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
+    });
+  };
+  document.head.appendChild(script);
+})();
+</script>
+
 <!-- INCOME STATEMENT -->
 <section class="fs-section">
   <div class="fs-label">Income Statement</div>
@@ -379,6 +477,29 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 .kpi-val { font-family: var(--serif); font-size: clamp(28px,3.5vw,42px); font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: .75rem; }
 .kpi-name { font-size: 13px; color: #C8C3B8; margin-bottom: .25rem; }
 .kpi-sub { font-size: 11px; color: var(--dim); }
+.exec-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
+.exec-section h2 { font-family: var(--serif); font-size: clamp(22px,3vw,32px); font-weight: 400; color: #F0EBE0; line-height: 1.2; margin-bottom: 1rem; }
+.exec-section h2 em { font-style: italic; color: var(--accent); }
+.exec-sub { font-size: 13px; color: var(--muted); line-height: 1.8; max-width: 640px; margin-bottom: 2rem; }
+.roic-chart-wrap { margin-bottom: 2.5rem; }
+.chart-sublabel { font-size: 10px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; }
+.hallazgos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 2rem; }
+.hallazgo { border: .5px solid rgba(255,255,255,.07); padding: 1.5rem; }
+.hallazgo-critical { border-color: rgba(212,74,74,.25); background: rgba(212,74,74,.02); }
+.h-num { font-family: var(--serif); font-size: 36px; color: var(--accent); opacity: .18; line-height: 1; margin-bottom: .35rem; }
+.hallazgo-critical .h-num { color: #D44A4A; }
+.h-lever { font-size: 9px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: .5rem; }
+.hallazgo-critical .h-lever { color: #D44A4A; }
+.h-title { font-family: var(--serif); font-size: 14px; color: #F0EBE0; line-height: 1.3; margin-bottom: .6rem; }
+.h-body { font-size: 11px; color: var(--dim); line-height: 1.7; margin-bottom: .75rem; }
+.h-accion { font-size: 10px; color: var(--accent); border-top: .5px solid rgba(255,255,255,.06); padding-top: .6rem; }
+.hallazgo-critical .h-accion { color: #D44A4A; border-color: rgba(212,74,74,.15); }
+.bc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+.bc-item { border: .5px solid rgba(255,255,255,.07); padding: 1.25rem; }
+.bc-num { font-size: 9px; letter-spacing: .1em; color: var(--accent); margin-bottom: .6rem; }
+.bc-title { font-family: var(--serif); font-size: 13px; color: #E8E3D8; line-height: 1.3; margin-bottom: .4rem; }
+.bc-val { font-size: 12px; color: var(--accent); margin-bottom: .5rem; font-weight: 500; }
+.bc-desc { font-size: 11px; color: var(--dim); line-height: 1.6; }
 .fs-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
 .roic-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
 .fs-label { font-family: var(--serif); font-size: 22px; color: #F0EBE0; margin-bottom: .25rem; }
