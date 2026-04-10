@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+export const prerender = false;
+---
+
+<Layout title="Sintelo — Mi diagnóstico">
+<section class="app-section">
+  <div id="loading" class="estado">Cargando...</div>
+  <div id="contenido" style="display:none">
+    <div class="app-header">
+      <div class="app-logo">Sintelo</div>
+      <div class="app-user" id="user-email"></div>
+      <button id="btn-logout" class="btn-logout">Cerrar sesión</button>
+    </div>
+    <div class="app-body">
+      <h1>Su diagnóstico está en preparación.</h1>
+      <p>En cuanto tengamos sus datos financieros procesados, aparecerán aquí.</p>
+    </div>
+  </div>
+  <div id="no-auth" style="display:none" class="estado">
+    <p>No tiene acceso. <a href="/login">Inicie sesión aquí</a></p>
+  </div>
+</section>
+
+<script>
+  import { supabase } from '../lib/supabase';
+
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  document.getElementById('loading').style.display = 'none';
+  
+  if (session) {
+    document.getElementById('user-email').textContent = session.user.email;
+    document.getElementById('contenido').style.display = 'block';
+    
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+    });
+  } else {
+    document.getElementById('no-auth').style.display = 'block';
+  }
+</script>
+</Layout>
+
+<style>
+.app-section { padding: 0; min-height: 100vh; }
+.estado { 
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; font-size: 14px; color: var(--dim);
+  flex-direction: column; gap: 1rem;
+}
+.estado a { color: var(--accent); }
+.app-header {
+  display: flex; align-items: center; gap: 2rem;
+  padding: 1.5rem 3rem;
+  border-bottom: 0.5px solid var(--border);
+}
+.app-logo { font-family: var(--serif); font-size: 20px; color: var(--accent); }
+.app-user { font-size: 13px; color: var(--dim); flex: 1; }
+.btn-logout {
+  font-size: 12px; color: var(--dim); background: none; border: none;
+  cursor: pointer; letter-spacing: 0.04em;
+}
+.btn-logout:hover { color: var(--text); }
+.app-body { padding: 5rem 3rem; }
+.app-body h1 {
+  font-family: var(--serif); font-size: 32px; color: #F0EBE0;
+  font-weight: 400; margin-bottom: 1rem;
+}
+.app-body p { font-size: 14px; color: var(--dim); line-height: 1.8; }
+</style>
