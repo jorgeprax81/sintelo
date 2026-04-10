@@ -1,0 +1,485 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import pg from 'pg';
+const { Pool } = pg;
+export const prerender = false;
+
+const pool = new Pool({
+  connectionString: import.meta.env.BIGRETAILER_DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+const [isRes, bsRes, cfRes] = await Promise.all([
+  pool.query(`SELECT * FROM clientes.income_statement ORDER BY periodo`),
+  pool.query(`SELECT * FROM clientes.balance_sheet ORDER BY periodo`),
+  pool.query(`SELECT * FROM clientes.cash_flow ORDER BY periodo`),
+]);
+
+await pool.end();
+
+const is = isRes.rows;
+const bs = bsRes.rows;
+const cf = cfRes.rows;
+
+// Calculate ratios
+const roic = is.map((row, i) => {
+  const nopat = Number(row.ebit) * (1 - Math.abs(Number(row.impuestos)) / Math.abs(Number(row.ebt)));
+  const netDebt = (Number(bs[i].deuda_corto_plazo) + Number(bs[i].deuda_largo_plazo)) - Number(bs[i].cash);
+  const capitalInvertido = netDebt + Number(bs[i].total_equity);
+  return { periodo: row.periodo, nopat, capitalInvertido, roic: nopat / capitalInvertido * 100 };
+});
+
+const latestROIC = roic[roic.length - 2]; // Year 7 (last full year)
+
+function fmt(n: number, parens = true) {
+  if (n === 0) return '—';
+  const abs = Math.abs(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (n < 0 && parens) return `(${abs})`;
+  return abs;
+}
+
+function fmtPct(n: number) {
+  return (n * 100).toFixed(1) + '%';
+}
+
+const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Year 8'];
+---
+
+<Layout title="Sintelo — Big Retailer Demo">
+
+<section class="demo-hero">
+  <div class="eyebrow"><span class="dot"></span> Demo en vivo · Estados financieros reales · Big Retailer Inc.</div>
+  <h1>Diagnóstico ROIC <em>con estados financieros reales</em></h1>
+  <p class="demo-sub">A diferencia de la demo operativa, este diagnóstico usa estados financieros completos — P&L, Balance y Flujo de Caja — para calcular el ROIC real, no un proxy.</p>
+  <div class="demo-disclaimer">
+    <span class="disc-dot"></span>
+    Empresa de demostración: Big Retailer Inc. — retailer global con operaciones en múltiples regiones. Cifras en USD millones.
+  </div>
+</section>
+
+<!-- KPIs -->
+<section class="kpi-section">
+  <div class="label">Indicadores clave · Año 7 (último año completo)</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-val">${(Number(is[6].revenue) / 1000).toFixed(1)}B</div>
+      <div class="kpi-name">Revenue</div>
+      <div class="kpi-sub">USD millones</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val">{((Number(is[6].gross_profit) / Number(is[6].revenue)) * 100).toFixed(1)}%</div>
+      <div class="kpi-name">Margen bruto</div>
+      <div class="kpi-sub">Gross profit / Revenue</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val">{latestROIC.roic.toFixed(1)}%</div>
+      <div class="kpi-name">ROIC real</div>
+      <div class="kpi-sub">NOPAT / Capital invertido</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val">${fmt(Math.round(latestROIC.nopat))}</div>
+      <div class="kpi-name">NOPAT</div>
+      <div class="kpi-sub">USD millones</div>
+    </div>
+  </div>
+</section>
+
+<!-- INCOME STATEMENT -->
+<section class="fs-section">
+  <div class="fs-label">Income Statement</div>
+  <div class="fs-sub">All figures in USD millions unless stated</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="row-label"></th>
+          {years.map(y => <th>{y}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-header"><td colspan="9">Revenue</td></tr>
+        <tr>
+          <td class="row-label">Revenue</td>
+          {is.map(r => <td class="positive">{fmt(Number(r.revenue), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">COGS</td>
+          {is.map(r => <td class="negative">{fmt(Number(r.cogs))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Gross Profit</td>
+          {is.map(r => <td>{fmt(Number(r.gross_profit), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr>
+          <td class="row-label">SG&A</td>
+          {is.map(r => <td class="negative">{fmt(Number(r.sga))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">EBITDA</td>
+          {is.map(r => <td>{fmt(Number(r.ebitda), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr>
+          <td class="row-label">Depreciation</td>
+          {is.map(r => <td class="negative">{fmt(Number(r.depreciacion))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">EBIT</td>
+          {is.map(r => <td>{fmt(Number(r.ebit), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr>
+          <td class="row-label">Interest Expense</td>
+          {is.map(r => <td class="negative">{fmt(Number(r.interes_gasto))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Interest Income</td>
+          {is.map(r => <td class="positive">{fmt(Number(r.interes_ingreso), false)}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">EBT</td>
+          {is.map(r => <td>{fmt(Number(r.ebt), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr>
+          <td class="row-label">Provision for Taxes</td>
+          {is.map(r => <td class="negative">{fmt(Number(r.impuestos))}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="total">
+          <td class="row-label">Net Income</td>
+          {is.map(r => <td>{fmt(Number(r.net_income), false)}</td>)}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CASH FLOW -->
+<section class="fs-section">
+  <div class="fs-label">Cash Flow Statement</div>
+  <div class="fs-sub">All figures in USD millions unless stated</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="row-label"></th>
+          {years.map(y => <th>{y}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-header"><td colspan="9">Cash from Operating</td></tr>
+        <tr>
+          <td class="row-label">Net Income</td>
+          {cf.map(r => <td class="positive">{fmt(Number(r.net_income), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Depreciation</td>
+          {cf.map(r => <td class="positive">{fmt(Number(r.depreciacion), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Cash From Accounts Receivable</td>
+          {cf.map(r => <td class={Number(r.cambio_cxc) < 0 ? 'negative' : 'positive'}>{fmt(Number(r.cambio_cxc))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Cash From Inventory</td>
+          {cf.map(r => <td class={Number(r.cambio_inventario) < 0 ? 'negative' : 'positive'}>{fmt(Number(r.cambio_inventario))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Cash From Accounts Payable</td>
+          {cf.map(r => <td class={Number(r.cambio_cxp) < 0 ? 'negative' : 'positive'}>{fmt(Number(r.cambio_cxp))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Subtotal Operativo</td>
+          {cf.map(r => <td>{fmt(Number(r.flujo_operativo), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="section-header"><td colspan="9">Cash from Investing</td></tr>
+        <tr>
+          <td class="row-label">Capital Expenditure</td>
+          {cf.map(r => <td class="negative">{fmt(Number(r.capex))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Subtotal Inversión</td>
+          {cf.map(r => <td class="negative">{fmt(Number(r.flujo_inversion))}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="section-header"><td colspan="9">Cash from Financing</td></tr>
+        <tr>
+          <td class="row-label">Change in Long-Term Debt</td>
+          {cf.map(r => <td class={Number(r.cambio_deuda_lp) < 0 ? 'negative' : 'positive'}>{fmt(Number(r.cambio_deuda_lp))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Dividends</td>
+          {cf.map(r => <td>—</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Subtotal Financiamiento</td>
+          {cf.map(r => <td class={Number(r.flujo_financiamiento) < 0 ? 'negative' : ''}>{fmt(Number(r.flujo_financiamiento))}</td>)}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BALANCE SHEET -->
+<section class="fs-section">
+  <div class="fs-label">Balance Sheet</div>
+  <div class="fs-sub">All figures in USD millions unless stated</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="row-label"></th>
+          {years.map(y => <th>{y}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-header"><td colspan="9">Assets</td></tr>
+        <tr>
+          <td class="row-label">Cash</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.cash), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Accounts Receivable</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.cuentas_por_cobrar), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Inventories</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.inventario), false)}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Total Current Assets</td>
+          {bs.map(r => <td>{fmt(Number(r.total_activo_corriente), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Property Plant & Equipment</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.ppe), false)}</td>)}
+        </tr>
+        <tr class="total">
+          <td class="row-label">Total Assets</td>
+          {bs.map(r => <td>{fmt(Number(r.total_activos), false)}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="section-header"><td colspan="9">Liabilities</td></tr>
+        <tr>
+          <td class="row-label">Accounts Payable</td>
+          {bs.map(r => <td class="negative">{fmt(Number(r.cuentas_por_pagar))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Revolving Credit Line</td>
+          {bs.map(r => <td class="negative">{fmt(Number(r.deuda_corto_plazo))}</td>)}
+        </tr>
+        <tr class="subtotal">
+          <td class="row-label">Total Current Liabilities</td>
+          {bs.map(r => <td class="negative">{fmt(Number(r.total_pasivo_corriente))}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Long-Term Debt</td>
+          {bs.map(r => <td class="negative">{fmt(Number(r.deuda_largo_plazo))}</td>)}
+        </tr>
+        <tr class="total">
+          <td class="row-label">Total Liabilities</td>
+          {bs.map(r => <td class="negative">{fmt(Number(r.total_pasivos))}</td>)}
+        </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="section-header"><td colspan="9">Equity</td></tr>
+        <tr>
+          <td class="row-label">Common Equity</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.capital_comun), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Retained Earnings</td>
+          {bs.map(r => <td class="positive">{fmt(Number(r.utilidades_retenidas), false)}</td>)}
+        </tr>
+        <tr class="total">
+          <td class="row-label">Total Shareholders' Equity</td>
+          {bs.map(r => <td>{fmt(Number(r.total_equity), false)}</td>)}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ROIC ANALYSIS -->
+<section class="roic-section">
+  <div class="label">Análisis ROIC · 8 periodos</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="row-label"></th>
+          {years.map(y => <th>{y}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">NOPAT</td>
+          {roic.map(r => <td>{fmt(Math.round(r.nopat), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Capital Invertido</td>
+          {roic.map(r => <td>{fmt(Math.round(r.capitalInvertido), false)}</td>)}
+        </tr>
+        <tr class="total">
+          <td class="row-label">ROIC</td>
+          {roic.map(r => <td class={r.roic > 10 ? 'positive' : 'negative'}>{r.roic.toFixed(1)}%</td>)}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="demo-cta">
+  <div class="cta-inner">
+    <div class="cta-tag">Este análisis tomó segundos. El suyo también.</div>
+    <h2>¿Quiere ver el diagnóstico<br>de <em>su</em> empresa?</h2>
+    <a href="/#contacto" class="btn-demo-cta">Solicitar diagnóstico →</a>
+    <div class="cta-note">Precio fijo · sin contrato de implementación por adelantado</div>
+  </div>
+</section>
+
+</Layout>
+
+<style>
+.demo-hero {
+  padding: 6rem 3rem 5rem;
+  border-bottom: 0.5px solid var(--border);
+  max-width: 860px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.demo-hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4.5vw, 50px);
+  font-weight: 400;
+  color: #F0EBE0;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+.demo-hero h1 em { font-style: italic; color: var(--accent); }
+.demo-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 620px;
+  margin-bottom: 2rem;
+}
+.demo-disclaimer {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: 12px;
+  color: var(--dim);
+  background: rgba(74,143,212,.05);
+  border: .5px solid var(--accent-border);
+  padding: .6rem 1rem;
+}
+.disc-dot, .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+.kpi-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
+.label { font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase; margin-bottom: 2rem; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--border);
+  border: .5px solid var(--border);
+}
+.kpi-card { background: var(--bg); padding: 2rem 1.75rem; }
+.kpi-val { font-family: var(--serif); font-size: clamp(28px,3.5vw,42px); font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: .75rem; }
+.kpi-name { font-size: 13px; color: #C8C3B8; margin-bottom: .25rem; }
+.kpi-sub { font-size: 11px; color: var(--dim); }
+
+.fs-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
+.roic-section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
+.fs-label { font-family: var(--serif); font-size: 22px; color: #F0EBE0; margin-bottom: .25rem; }
+.fs-sub { font-size: 11px; color: var(--dim); margin-bottom: 2rem; letter-spacing: .04em; }
+
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: var(--sans);
+  min-width: 800px;
+}
+th {
+  padding: .5rem .75rem;
+  text-align: right;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: .05em;
+  border-bottom: .5px solid var(--faint);
+  white-space: nowrap;
+}
+th.row-label { text-align: left; width: 220px; }
+td {
+  padding: .4rem .75rem;
+  text-align: right;
+  color: var(--text);
+  border-bottom: .5px solid rgba(255,255,255,.02);
+  white-space: nowrap;
+}
+td.row-label { text-align: left; color: var(--muted); font-size: 12px; }
+td.positive { color: #E8E3D8; }
+td.negative { color: #E8E3D8; }
+tr.subtotal td { border-top: .5px solid var(--faint); font-weight: 500; color: #F0EBE0; }
+tr.total td { border-top: .5px solid var(--accent-border); border-bottom: .5px solid var(--accent-border); font-weight: 500; color: #F0EBE0; }
+tr.section-header td {
+  font-size: 10px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-top: 1.25rem;
+  padding-bottom: .5rem;
+  border-bottom: none;
+}
+tr.spacer td { height: 8px; border: none; }
+
+.demo-cta { padding: 7rem 3rem; text-align: center; }
+.cta-inner { max-width: 600px; margin: 0 auto; }
+.cta-tag { font-size: 11px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: 1.5rem; }
+.demo-cta h2 { font-family: var(--serif); font-size: clamp(28px,4vw,46px); color: #F0EBE0; font-weight: 400; line-height: 1.1; margin-bottom: 2rem; }
+.demo-cta h2 em { font-style: italic; color: var(--accent); }
+.btn-demo-cta {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  padding: 1rem 2.5rem;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  transition: opacity .2s;
+  margin-bottom: 1rem;
+}
+.btn-demo-cta:hover { opacity: .88; }
+.cta-note { font-size: 12px; color: var(--dim); letter-spacing: .04em; }
+
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .demo-hero, .fs-section, .roic-section, .kpi-section, .demo-cta { padding: 3rem 1.5rem; }
+  .kpi-grid { grid-template-columns: 1fr; gap: 0; }
+}
+</style>
