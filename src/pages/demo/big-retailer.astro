@@ -312,6 +312,11 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
           <td class="row-label">Total Shareholders' Equity</td>
           {bs.map(r => <td>{fmt(Number(r.total_equity), false)}</td>)}
         </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="total">
+          <td class="row-label">Total Liabilities & Equity</td>
+          {bs.map(r => <td>{fmt(Number(r.total_pasivos) + Number(r.total_equity), false)}</td>)}
+        </tr>
       </tbody>
     </table>
   </div>
