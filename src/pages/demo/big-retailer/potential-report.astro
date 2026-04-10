@@ -1,0 +1,335 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+export const prerender = false;
+---
+
+<Layout title="Sintelo — Big Retailer · Potential Report">
+
+<section class="hero">
+  <div class="eyebrow"><span class="dot"></span> Performance Improvement Potential · Big Retailer Inc.</div>
+  <h1>De 10.1% a 13.5% de ROIC.<br><em>$36B de valor capturado en 3 años.</em></h1>
+  <p class="sub">Diagnóstico basado en 8 periodos de estados financieros reales. Tres levers prioritarios con impacto cuantificado sobre NOPAT y capital invertido.</p>
+  <div class="disclaimer"><span class="disc-dot"></span> Empresa de demostración: Big Retailer Inc. Cifras en USD millones.</div>
+</section>
+
+<!-- ROIC GAP -->
+<section class="section">
+  <div class="label">ROIC actual vs potencial</div>
+  <div class="roic-gap">
+    <div class="rg">
+      <div class="rg-val cur">10.1%</div>
+      <div class="rg-label">ROIC actual · Year 7</div>
+    </div>
+    <div class="rg-arrow">→</div>
+    <div class="rg">
+      <div class="rg-val pot">13.5%</div>
+      <div class="rg-label">ROIC potencial · 3 años</div>
+    </div>
+  </div>
+</section>
+
+<!-- WATERFALL -->
+<section class="section">
+  <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
+  <div style="position:relative;height:240px;max-width:800px;margin-bottom:1rem;">
+    <canvas id="wfChart" role="img" aria-label="Waterfall ROIC de 10.1% a 13.5% via tres levers">
+      ROIC actual 10.1%, SGA +1.8pp, Capex +0.9pp, Inventario +0.7pp, ROIC potencial 13.5%
+    </canvas>
+  </div>
+  <div class="wf-legend">
+    <span class="leg-item"><span class="leg-dot" style="background:#4A8FD4"></span>Punto de partida</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#4A9A7A"></span>Valor capturado por lever</span>
+  </div>
+</section>
+
+<!-- LEVERS -->
+<section class="section">
+  <div class="label">Levers prioritarios · impacto cuantificado</div>
+  <div class="levers">
+    <div class="lever-header">
+      <span>Lever</span>
+      <span>Impacto relativo</span>
+      <span>Valor capturado</span>
+      <span>ROIC</span>
+    </div>
+    <div class="lever">
+      <div class="lname">01 · Reducir SG&A overhead</div>
+      <div class="lbar-wrap"><div class="lbar" style="width:100%"></div></div>
+      <div class="lval">+$11B NOPAT</div>
+      <div class="lroic">+1.8pp</div>
+    </div>
+    <div class="lever">
+      <div class="lname">02 · Criterio ROIC en capex</div>
+      <div class="lbar-wrap"><div class="lbar" style="width:55%"></div></div>
+      <div class="lval">$8B liberados/año</div>
+      <div class="lroic">+0.9pp</div>
+    </div>
+    <div class="lever">
+      <div class="lname">03 · Normalizar inventario</div>
+      <div class="lbar-wrap"><div class="lbar" style="width:40%"></div></div>
+      <div class="lval">$17B liberados</div>
+      <div class="lroic">+0.7pp</div>
+    </div>
+  </div>
+</section>
+
+<!-- ANÁLISIS POR LEVER -->
+<section class="section">
+  <div class="label">Análisis por lever</div>
+
+  <div class="lever-detail">
+    <div class="ld-header">
+      <div class="ld-tag">Lever 01 — Palanca A · SG&A / Overhead</div>
+      <div class="ld-title">SG&A creció 25% en 8 años. Revenue creció 15%.</div>
+    </div>
+    <div class="ld-cols">
+      <div class="ld-col">
+        <div class="ld-col-label">Situación actual</div>
+        <p>SG&A: $116B (20.8% revenue)<br>EBITDA margin: 6.0%<br>vs 7.4% en Year 1</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Benchmark</div>
+        <p>Retail eficiente: 18-19% SG&A<br>EBITDA objetivo: 8-9%<br>Gap: ~2pp de margen</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Iniciativa</div>
+        <p>Auditoría de overhead por función<br>Target: -2pp SG&A en 18 meses<br>Valor: +$11B de NOPAT</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lever-detail">
+    <div class="ld-header">
+      <div class="ld-tag">Lever 02 — Palanca B · Capex / Capital invertido</div>
+      <div class="ld-title">$126B en capex en 4 años. ROIC cayó en ese mismo periodo.</div>
+    </div>
+    <div class="ld-cols">
+      <div class="ld-col">
+        <div class="ld-col-label">Situación actual</div>
+        <p>Capex promedio: $32B/año<br>Sin criterio de ROIC mínimo<br>LTD creció $27B en 4 años</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Benchmark</div>
+        <p>Retail eficiente: 3-4% revenue<br>ROIC mínimo requerido: 12%<br>Hurdle rate estándar industria</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Iniciativa</div>
+        <p>Definir hurdle rate de 12% ROIC<br>Freeze capex no comprometido<br>Valor: $8B liberados/año</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lever-detail">
+    <div class="ld-header">
+      <div class="ld-tag">Lever 03 — Palanca B · Working capital / Inventario</div>
+      <div class="ld-title">Inventario saltó $20B en Year 7 sin crecimiento de revenue proporcional.</div>
+    </div>
+    <div class="ld-cols">
+      <div class="ld-col">
+        <div class="ld-col-label">Situación actual</div>
+        <p>Inventario Year 7: $65B<br>Histórico Years 1-6: $45-48B<br>Días inventario: ~58 días</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Benchmark</div>
+        <p>Días inventario objetivo: 35-40<br>Nivel histórico propio: $46B<br>Gap: $17-20B de capital</p>
+      </div>
+      <div class="ld-col">
+        <div class="ld-col-label">Iniciativa</div>
+        <p>Programa de liquidación selectiva<br>Target: $48B en 12 meses<br>Valor: $17B de capital liberado</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="section">
+  <div class="label">Hoja de ruta · 18 meses</div>
+  <div class="roadmap">
+    <div class="rm">
+      <div class="rm-phase">Fase 1 · 0-90 días</div>
+      <div class="rm-title">Quick wins</div>
+      <ul class="rm-items">
+        <li>Auditoría de SG&A por función</li>
+        <li>Freeze de capex no comprometido</li>
+        <li>Diagnóstico de inventario Year 7</li>
+        <li>Definir ROIC mínimo requerido (12%)</li>
+        <li>Dashboard mensual de ROIC</li>
+      </ul>
+    </div>
+    <div class="rm">
+      <div class="rm-phase">Fase 2 · 90-365 días</div>
+      <div class="rm-title">Transformación operativa</div>
+      <ul class="rm-items">
+        <li>Reducción estructural de overhead</li>
+        <li>Programa de liquidación de inventario</li>
+        <li>Nuevo proceso de aprobación de capex</li>
+        <li>Renegociación de deuda LP</li>
+        <li>Tracking mensual de iniciativas</li>
+      </ul>
+    </div>
+    <div class="rm">
+      <div class="rm-phase">Fase 3 · 12-18 meses</div>
+      <div class="rm-title">Consolidación</div>
+      <ul class="rm-items">
+        <li>Verificar ROIC ≥ 13% sostenido</li>
+        <li>Capacidades internas instaladas</li>
+        <li>Modelo de capex con hurdle rate</li>
+        <li>Informe final de valor creado</li>
+        <li>Plan de mejora continua</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BUSINESS CASE -->
+<section class="section">
+  <div class="label">Business case total</div>
+  <div class="bc-grid">
+    <div class="bc">
+      <div class="bc-val">$36B</div>
+      <div class="bc-label">Valor total capturado</div>
+      <div class="bc-sub">En 3 años de implementación</div>
+    </div>
+    <div class="bc">
+      <div class="bc-val">13.5%</div>
+      <div class="bc-label">ROIC potencial</div>
+      <div class="bc-sub">vs 10.1% actual</div>
+    </div>
+    <div class="bc">
+      <div class="bc-val">+3.4pp</div>
+      <div class="bc-label">Mejora de ROIC</div>
+      <div class="bc-sub">En 3 años</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-tag">El suyo tomaría días, no meses.</div>
+    <h2>¿Quiere ver el Potential Report<br>de <em>su</em> empresa?</h2>
+    <a href="/#contacto" class="btn-cta">Solicitar diagnóstico →</a>
+    <div class="cta-note">Precio fijo · sin contrato de implementación por adelantado</div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+  s.onload = () => {
+    new Chart(document.getElementById('wfChart'), {
+      type: 'bar',
+      data: {
+        labels: ['ROIC actual','Lever SG&A','Lever Capex','Lever Inventario','ROIC potencial'],
+        datasets: [
+          { data: [0, 10.1, 11.9, 12.8, 0], backgroundColor: 'transparent', borderColor: 'transparent' },
+          { data: [10.1, 1.8, 0.9, 0.7, 13.5], backgroundColor: ['#4A8FD4','#4A9A7A','#4A9A7A','#4A9A7A','#4A9A7A'], borderColor: 'transparent', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                if(ctx.datasetIndex === 0) return null;
+                const i = ctx.dataIndex;
+                if(i === 0) return 'ROIC actual: 10.1%';
+                if(i === 4) return 'ROIC potencial: 13.5%';
+                return '+' + ctx.parsed.y.toFixed(1) + 'pp';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: '#7A7470', font: { size: 11 } }, grid: { display: false }, border: { color: 'rgba(255,255,255,.06)' } },
+          y: { stacked: true, min: 0, max: 16, ticks: { color: '#7A7470', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,.06)' } }
+        }
+      }
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
+</Layout>
+
+<style>
+.hero { padding: 6rem 3rem 5rem; border-bottom: 0.5px solid var(--border); max-width: 860px; }
+.eyebrow { font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+.dot, .disc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.hero h1 { font-family: var(--serif); font-size: clamp(28px,4vw,46px); font-weight: 400; color: #F0EBE0; line-height: 1.15; margin-bottom: 1rem; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+.sub { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 620px; margin-bottom: 1.5rem; }
+.disclaimer { display: inline-flex; align-items: center; gap: .5rem; font-size: 12px; color: var(--dim); background: rgba(74,143,212,.05); border: .5px solid var(--accent-border); padding: .5rem 1rem; }
+
+.section { padding: 4rem 3rem; border-bottom: .5px solid var(--border); }
+.label { font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase; margin-bottom: 2rem; }
+
+.roic-gap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1px; background: var(--border); border: .5px solid var(--border); max-width: 600px; }
+.rg { background: var(--bg); padding: 2rem; text-align: center; }
+.rg-val { font-family: var(--serif); font-size: 48px; font-weight: 500; line-height: 1; margin-bottom: .5rem; }
+.rg-val.cur { color: var(--accent); }
+.rg-val.pot { color: #4A9A7A; }
+.rg-label { font-size: 12px; color: var(--dim); }
+.rg-arrow { font-size: 32px; color: var(--accent); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; background: var(--bg); }
+
+.wf-legend { display: flex; gap: 1.5rem; font-size: 12px; color: var(--dim); }
+.leg-item { display: flex; align-items: center; gap: .4rem; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+.levers { display: flex; flex-direction: column; gap: .5rem; }
+.lever-header { display: grid; grid-template-columns: 200px 1fr 140px 80px; gap: 1rem; padding: .5rem 1rem; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.lever { display: grid; grid-template-columns: 200px 1fr 140px 80px; gap: 1rem; align-items: center; padding: .875rem 1rem; border: .5px solid rgba(255,255,255,.06); }
+.lname { font-size: 12px; color: #C8C3B8; }
+.lbar-wrap { height: 18px; background: rgba(255,255,255,.03); }
+.lbar { height: 100%; background: #4A9A7A; opacity: .65; }
+.lval { font-size: 12px; color: #4A9A7A; text-align: right; font-weight: 500; }
+.lroic { font-size: 12px; color: #4A9A7A; text-align: right; }
+
+.lever-detail { border: .5px solid rgba(255,255,255,.07); padding: 1.75rem; margin-bottom: 1rem; }
+.ld-header { margin-bottom: 1.25rem; }
+.ld-tag { font-size: 10px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: .5rem; }
+.ld-title { font-family: var(--serif); font-size: 18px; color: #F0EBE0; line-height: 1.3; }
+.ld-cols { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+.ld-col-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: .5rem; }
+.ld-col p { font-size: 12px; color: #7A7470; line-height: 1.7; }
+
+.roadmap { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+.rm { border: .5px solid rgba(255,255,255,.07); padding: 1.5rem; }
+.rm-phase { font-size: 9px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: .5rem; }
+.rm-title { font-family: var(--serif); font-size: 16px; color: #F0EBE0; margin-bottom: 1rem; }
+.rm-items { list-style: none; padding: 0; border-top: .5px solid var(--border); padding-top: .75rem; }
+.rm-items li { font-size: 12px; color: var(--dim); padding: .3rem 0; border-bottom: .5px solid rgba(255,255,255,.03); }
+.rm-items li::before { content: "— "; color: var(--accent); font-size: 10px; }
+
+.bc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: .5px solid var(--border); }
+.bc { background: var(--bg); padding: 2rem 1.75rem; }
+.bc-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: #4A9A7A; line-height: 1; margin-bottom: .5rem; }
+.bc-label { font-size: 13px; color: #C8C3B8; margin-bottom: .2rem; }
+.bc-sub { font-size: 11px; color: var(--dim); }
+
+.cta-section { padding: 7rem 3rem; text-align: center; }
+.cta-inner { max-width: 600px; margin: 0 auto; }
+.cta-tag { font-size: 11px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; margin-bottom: 1.5rem; }
+.cta-section h2 { font-family: var(--serif); font-size: clamp(28px,4vw,46px); color: #F0EBE0; font-weight: 400; line-height: 1.1; margin-bottom: 2rem; }
+.cta-section h2 em { font-style: italic; color: var(--accent); }
+.btn-cta { display: inline-block; background: var(--accent); color: #fff; padding: 1rem 2.5rem; font-family: var(--sans); font-size: 14px; font-weight: 500; letter-spacing: .06em; transition: opacity .2s; margin-bottom: 1rem; }
+.btn-cta:hover { opacity: .88; }
+.cta-note { font-size: 12px; color: var(--dim); letter-spacing: .04em; }
+
+@media (max-width: 900px) {
+  .ld-cols, .roadmap, .bc-grid { grid-template-columns: 1fr; }
+  .lever, .lever-header { grid-template-columns: 1fr 1fr; }
+  .lever-header { display: none; }
+}
+@media (max-width: 600px) {
+  .hero, .section, .cta-section { padding: 3rem 1.5rem; }
+  .roic-gap { grid-template-columns: 1fr; }
+  .rg-arrow { padding: 1rem; }
+}
+</style>
