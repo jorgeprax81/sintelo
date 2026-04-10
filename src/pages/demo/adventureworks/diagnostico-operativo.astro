@@ -167,7 +167,7 @@ function formatM(n: number) {
           const maxDias = Number(diasComponents);
           const pct = Math.min((diasNum / maxDias) * 100, 100);
           const isAlert = diasNum > 150;
-          const isWarn = diasNum > 60 && diasNum <= 150;
+          const isWarn = diasNum > 60 && diasNum < 151;
           return (
             <div class="inv-row">
               <div class="inv-cat">{r.categoria}</div>
