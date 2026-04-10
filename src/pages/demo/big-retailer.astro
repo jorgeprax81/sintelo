@@ -219,6 +219,20 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
           <td class="row-label">Subtotal</td>
           {cf.map(r => <td>{fmt(Number(r.flujo_financiamiento))}</td>)}
         </tr>
+        <tr class="spacer"><td colspan="9"></td></tr>
+        <tr class="section-header"><td colspan="9">Cash Balance</td></tr>
+        <tr>
+          <td class="row-label">Beginning of the Year</td>
+          {cf.map(r => <td>{fmt(Number(r.cash_inicio), false)}</td>)}
+        </tr>
+        <tr>
+          <td class="row-label">Increase / (Decrease)</td>
+          {cf.map(r => <td>{fmt(Number(r.cash_cambio))}</td>)}
+        </tr>
+        <tr class="total">
+          <td class="row-label">End of the Year</td>
+          {cf.map(r => <td>{fmt(Number(r.cash_fin), false)}</td>)}
+        </tr>
       </tbody>
     </table>
   </div>
