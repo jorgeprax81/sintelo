@@ -1,22 +1,5 @@
 ---
 export const prerender = false;
-import { createServerClient } from '@supabase/ssr';
-
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-  cookies: {
-    get(name) { return Astro.cookies.get(name)?.value; },
-    set(name, value, options) { Astro.cookies.set(name, value, options); },
-    remove(name, options) { Astro.cookies.delete(name, options); },
-  }
-});
-
-const { data: { session } } = await supabase.auth.getSession();
-if (!session) return Astro.redirect('/login');
-
-const email = session.user.email;
 ---
 
 <!DOCTYPE html>
@@ -223,7 +206,7 @@ const email = session.user.email;
 
 <header>
   <div class="logo">Sintelo</div>
-  <div class="user">{email}</div>
+  <div class="user" id='user-email'></div>
 </header>
 
 <main>
@@ -270,6 +253,17 @@ const email = session.user.email;
 </main>
 
 <script>
+  import { supabase } from '../lib/supabase';
+
+  const userEmail = document.getElementById('user-email');
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    window.location.href = '/login';
+  } else {
+    userEmail.textContent = session.user.email || '';
+  }
+
   const fileInput = document.getElementById('file-input');
   const dropzone = document.getElementById('dropzone');
   const fileSelected = document.getElementById('file-selected');
