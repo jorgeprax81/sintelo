@@ -1,0 +1,354 @@
+---
+export const prerender = false;
+import { createServerClient } from '@supabase/ssr';
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+  cookies: {
+    get(name) { return Astro.cookies.get(name)?.value; },
+    set(name, value, options) { Astro.cookies.set(name, value, options); },
+    remove(name, options) { Astro.cookies.delete(name, options); },
+  }
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) return Astro.redirect('/login');
+
+const email = session.user.email;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sintelo · Subir datos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0C0D0F;
+      --surface: #141618;
+      --border: rgba(255,255,255,.07);
+      --accent: #4A8FD4;
+      --text: #E8E3D8;
+      --dim: #6A6460;
+      --muted: #7A7470;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --green: #4A9A7A;
+      --red: #D44A4A;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      border-bottom: .5px solid var(--border);
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .15em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .user {
+      font-size: 12px;
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+    .card {
+      background: var(--surface);
+      border: .5px solid var(--border);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 520px;
+    }
+    .card-label {
+      font-size: 10px;
+      letter-spacing: .2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .card-title {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: .5rem;
+      line-height: 1.2;
+    }
+    .card-sub {
+      font-size: 13px;
+      color: var(--dim);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .field { margin-bottom: 1.25rem; }
+    .field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+      font-family: var(--mono);
+    }
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: .5px solid var(--border);
+      color: var(--text);
+      padding: .75rem 1rem;
+      font-family: var(--mono);
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+    select:focus { border-color: var(--accent); }
+
+    .dropzone {
+      border: .5px dashed rgba(74,143,212,.3);
+      background: rgba(74,143,212,.03);
+      padding: 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(74,143,212,.06);
+    }
+    .dropzone input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .drop-icon {
+      font-size: 28px;
+      margin-bottom: .75rem;
+      opacity: .4;
+    }
+    .drop-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .drop-text strong { color: var(--accent); font-weight: 500; }
+    .file-selected {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--green);
+      margin-top: .75rem;
+      display: none;
+    }
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: .875rem 1.5rem;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .88; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .status {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      font-size: 13px;
+      font-family: var(--mono);
+      display: none;
+      line-height: 1.6;
+    }
+    .status.ok { color: var(--green); border: .5px solid rgba(74,154,122,.2); background: rgba(74,154,122,.04); }
+    .status.err { color: var(--red); border: .5px solid rgba(212,74,74,.2); background: rgba(212,74,74,.04); }
+    .status.loading { color: var(--accent); border: .5px solid rgba(74,143,212,.2); background: rgba(74,143,212,.04); }
+
+    .progress {
+      height: 2px;
+      background: var(--border);
+      margin-top: 1rem;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width .3s;
+    }
+
+    .nota {
+      font-size: 11px;
+      color: var(--dim);
+      font-family: var(--mono);
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: .5px solid var(--border);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Sintelo</div>
+  <div class="user">{email}</div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-label">Ingesta de datos</div>
+    <h1 class="card-title">Subir archivo de facturación</h1>
+    <p class="card-sub">Selecciona el tipo de archivo y sube el Excel exportado de CONTPAQ. Los datos se cargarán automáticamente a tu base de datos.</p>
+
+    <div class="field">
+      <label>Tipo de datos</label>
+      <select id="tipo">
+        <option value="ventas">Facturación / Ventas</option>
+        <option value="inventario" disabled>Inventario (próximamente)</option>
+        <option value="costos" disabled>Costos (próximamente)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Archivo Excel</label>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file-input" accept=".xlsx,.xls" />
+        <div class="drop-icon">📂</div>
+        <div class="drop-text">
+          <strong>Haz clic para seleccionar</strong> o arrastra el archivo aquí<br>
+          Formatos aceptados: .xlsx, .xls
+        </div>
+        <div class="file-selected" id="file-selected"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="btn-upload" disabled>Cargar datos →</button>
+
+    <div class="progress" id="progress">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="nota">
+      Los datos anteriores del mismo tipo se reemplazarán con esta carga.<br>
+      Asegúrate de subir el archivo completo, no solo el delta semanal.
+    </div>
+  </div>
+</main>
+
+<script>
+  const fileInput = document.getElementById('file-input');
+  const dropzone = document.getElementById('dropzone');
+  const fileSelected = document.getElementById('file-selected');
+  const btnUpload = document.getElementById('btn-upload');
+  const status = document.getElementById('status');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progress-bar');
+  const tipo = document.getElementById('tipo');
+
+  let selectedFile = null;
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    fileSelected.textContent = `✓ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+    fileSelected.style.display = 'block';
+    btnUpload.disabled = false;
+    hideStatus();
+  }
+
+  function showStatus(msg, type) {
+    status.textContent = msg;
+    status.className = `status ${type}`;
+    status.style.display = 'block';
+  }
+  function hideStatus() {
+    status.style.display = 'none';
+  }
+
+  btnUpload.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    btnUpload.disabled = true;
+    progress.style.display = 'block';
+    progressBar.style.width = '20%';
+    showStatus('Procesando archivo...', 'loading');
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('tipo', tipo.value);
+
+    try {
+      progressBar.style.width = '50%';
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      progressBar.style.width = '90%';
+      const data = await res.json();
+
+      if (res.ok) {
+        progressBar.style.width = '100%';
+        showStatus(`✓ ${data.message}`, 'ok');
+      } else {
+        showStatus(`Error: ${data.error}`, 'err');
+      }
+    } catch (err) {
+      showStatus(`Error de conexión: ${err.message}`, 'err');
+    } finally {
+      btnUpload.disabled = false;
+      setTimeout(() => { progress.style.display = 'none'; progressBar.style.width = '0%'; }, 2000);
+    }
+  });
+</script>
+
+</body>
+</html>
