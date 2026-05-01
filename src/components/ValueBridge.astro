@@ -1,48 +1,22 @@
 ---
-const company = 'Big Retailer Inc.';
-const revenueM = 572754;
-const currentEbitdaM = 30923;
-const currentMargin = 5.4;
-const potentialEbitdaM = 41741;
-const potentialMargin = 8.2;
+const res = await fetch(new URL('/api/value-bridge', Astro.url));
+const data = await res.json();
 
-const levers = [
-  {
-    key: 'sga',
-    name: 'Normalizar SGA',
-    description: 'SGA crecio de 19.2% a 20.6%.',
-    impactM: 7618,
-    color: '#7F77DD'
-  },
-  {
-    key: 'pricing',
-    name: 'Pricing mix',
-    description: 'Mejor mezcla de precios por categoria y canal.',
-    impactM: 5728,
-    color: '#85B7EB'
-  },
-  {
-    key: 'inventory',
-    name: 'Inventario',
-    description: 'Reduccion de exceso y mejor rotacion operativa.',
-    impactM: 3200,
-    color: '#9FE1CB'
-  },
-  {
-    key: 'procurement',
-    name: 'Procurement',
-    description: 'Negociacion de costo unitario y condiciones de compra.',
-    impactM: 2872,
-    color: '#D3D1C7'
-  },
-  {
-    key: 'working-capital',
-    name: 'Working capital',
-    description: 'Liberacion de capital atrapado en ciclo de caja.',
-    impactM: 1400,
-    color: '#9FE1CB'
-  }
-];
+const company = data.empresa;
+const revenueM = Number(data.revenue);
+const currentEbitdaM = Number(data.ebitda_actual);
+const currentMargin = Number(data.margen_actual);
+const potentialEbitdaM = Number(data.ebitda_potencial);
+const potentialMargin = Number(data.margen_potencial);
+const levers = Array.isArray(data.levers)
+  ? data.levers.map((lever: any, index: number) => ({
+      key: `${index}-${String(lever.nombre || 'lever').toLowerCase().replace(/\s+/g, '-')}`,
+      name: String(lever.nombre || ''),
+      description: String(lever.descripcion || ''),
+      impactM: Number(lever.impacto || 0),
+      color: String(lever.color || '#7F77DD')
+    }))
+  : [];
 
 const deltaMarginPp = +(potentialMargin - currentMargin).toFixed(1);
 const grossLeverImpactM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
