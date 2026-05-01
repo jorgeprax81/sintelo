@@ -1,0 +1,398 @@
+---
+const company = 'Big Retailer Inc.';
+const revenueM = 572754;
+const currentEbitdaM = 30923;
+const currentMargin = 5.4;
+const potentialEbitdaM = 41741;
+const potentialMargin = 8.2;
+
+const levers = [
+  {
+    key: 'sga',
+    name: 'Normalizar SGA',
+    description: 'SGA crecio de 19.2% a 20.6%.',
+    impactM: 7618,
+    color: '#7F77DD'
+  },
+  {
+    key: 'pricing',
+    name: 'Pricing mix',
+    description: 'Mejor mezcla de precios por categoria y canal.',
+    impactM: 5728,
+    color: '#85B7EB'
+  },
+  {
+    key: 'inventory',
+    name: 'Inventario',
+    description: 'Reduccion de exceso y mejor rotacion operativa.',
+    impactM: 3200,
+    color: '#9FE1CB'
+  },
+  {
+    key: 'procurement',
+    name: 'Procurement',
+    description: 'Negociacion de costo unitario y condiciones de compra.',
+    impactM: 2872,
+    color: '#D3D1C7'
+  },
+  {
+    key: 'working-capital',
+    name: 'Working capital',
+    description: 'Liberacion de capital atrapado en ciclo de caja.',
+    impactM: 1400,
+    color: '#9FE1CB'
+  }
+];
+
+const deltaMarginPp = +(potentialMargin - currentMargin).toFixed(1);
+const grossLeverImpactM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
+const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
+---
+
+<section
+  class="value-bridge"
+  data-current={currentEbitdaM}
+  data-potential={potentialEbitdaM}
+>
+  <header class="vb-header">
+    <div>
+      <p class="vb-eyebrow">Value Bridge</p>
+      <h3>{company}</h3>
+      <p class="vb-sub">Revenue base: ${revenueM.toLocaleString()}M</p>
+    </div>
+    <div class="vb-metrics">
+      <div class="vb-metric">
+        <span class="vb-label">Margen actual</span>
+        <strong>{currentMargin.toFixed(1)}%</strong>
+      </div>
+      <div class="vb-metric">
+        <span class="vb-label">Margen potencial</span>
+        <strong>{potentialMargin.toFixed(1)}%</strong>
+      </div>
+      <div class="vb-metric vb-metric-delta">
+        <span class="vb-label">Delta</span>
+        <strong>+{deltaMarginPp.toFixed(1)} pp</strong>
+      </div>
+    </div>
+  </header>
+
+  <div class="vb-chart">
+    <div class="vb-bars">
+      <div
+        class="vb-bar-col vb-base"
+        data-bar
+        data-kind="base"
+        data-value={currentEbitdaM}
+        data-color="#0F2742"
+        data-label="EBITDA actual"
+      >
+        <span class="vb-top-label">EBITDA actual</span>
+        <div class="vb-bar"><span class="vb-value"></span></div>
+      </div>
+
+      {levers.map((lever) => (
+        <div
+          class="vb-bar-col vb-lever"
+          data-bar
+          data-kind="lever"
+          data-value={lever.impactM}
+          data-color={lever.color}
+          data-label={lever.name}
+        >
+          <span class="vb-top-label">{lever.name}</span>
+          <div class="vb-bar"><span class="vb-value"></span></div>
+        </div>
+      ))}
+
+      <div
+        class="vb-bar-col vb-final"
+        data-bar
+        data-kind="final"
+        data-value={potentialEbitdaM}
+        data-color="#54B284"
+        data-label="EBITDA potencial"
+      >
+        <span class="vb-top-label">EBITDA potencial</span>
+        <div class="vb-bar"><span class="vb-value"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="vb-lever-list">
+    {levers.map((lever) => (
+      <li class="vb-lever-row">
+        <span class="vb-dot" style={`--dot:${lever.color}`}></span>
+        <div class="vb-lever-copy">
+          <div class="vb-lever-title">{lever.name}</div>
+          <div class="vb-lever-desc">{lever.description}</div>
+        </div>
+        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B</strong>
+      </li>
+    ))}
+  </ul>
+
+  <footer class="vb-total">
+    <div class="vb-total-row">
+      <span>Total bruto de levers</span>
+      <strong>+${(grossLeverImpactM / 1000).toFixed(1)}B</strong>
+    </div>
+    <div class="vb-total-row">
+      <span>Delta neto EBITDA actual a potencial</span>
+      <strong>+${(netEbitdaDeltaM / 1000).toFixed(1)}B</strong>
+    </div>
+  </footer>
+
+  <script is:inline>
+    (() => {
+      const formatBillions = (valueM) => `$${(valueM / 1000).toFixed(1)}B`;
+
+      document.querySelectorAll('.value-bridge').forEach((bridge) => {
+        const current = Number(bridge.dataset.current || 0);
+        const potential = Number(bridge.dataset.potential || 0);
+        const cols = Array.from(bridge.querySelectorAll('[data-bar]'));
+
+        let running = current;
+        const spans = [];
+
+        cols.forEach((col) => {
+          const kind = col.dataset.kind;
+          const value = Number(col.dataset.value || 0);
+
+          if (kind === 'base') {
+            spans.push({ col, start: 0, end: value, value });
+            return;
+          }
+
+          if (kind === 'lever') {
+            const start = running;
+            const end = running + value;
+            spans.push({ col, start, end, value });
+            running = end;
+            return;
+          }
+
+          spans.push({ col, start: 0, end: value, value });
+        });
+
+        const maxValue = Math.max(
+          potential,
+          running,
+          ...spans.map((item) => item.end)
+        );
+
+        spans.forEach(({ col, start, end, value }) => {
+          const bar = col.querySelector('.vb-bar');
+          const valueNode = col.querySelector('.vb-value');
+          const color = col.dataset.color || '#7F77DD';
+          const heightPct = ((end - start) / maxValue) * 100;
+          const bottomPct = (start / maxValue) * 100;
+
+          if (bar) {
+            bar.style.height = `${heightPct}%`;
+            bar.style.bottom = `${bottomPct}%`;
+            bar.style.background = color;
+          }
+
+          if (valueNode) {
+            const prefix = col.dataset.kind === 'lever' ? '+' : '';
+            valueNode.textContent = `${prefix}${formatBillions(value)}`;
+          }
+        });
+      });
+    })();
+  </script>
+</section>
+
+<style>
+.value-bridge {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 2rem;
+}
+
+.vb-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.25rem;
+}
+
+.vb-eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--dim);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vb-header h3 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.vb-sub {
+  margin: 0.5rem 0 0;
+  color: var(--dim);
+  font-size: 0.9rem;
+}
+
+.vb-metrics {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-end;
+}
+
+.vb-metric {
+  min-width: 9rem;
+  border: 1px solid var(--border);
+  padding: 0.7rem 0.85rem;
+}
+
+.vb-label {
+  display: block;
+  color: var(--dim);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.vb-metric strong {
+  font-size: 1.1rem;
+}
+
+.vb-metric-delta strong {
+  color: #54B284;
+}
+
+.vb-chart {
+  border: 1px solid var(--border);
+  padding: 1.1rem;
+  overflow-x: auto;
+}
+
+.vb-bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
+  gap: 0.9rem;
+  align-items: end;
+  min-height: 24rem;
+}
+
+.vb-bar-col {
+  position: relative;
+  min-height: 22rem;
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+}
+
+.vb-top-label {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--dim);
+  line-height: 1.35;
+  margin-bottom: 0.5rem;
+}
+
+.vb-bar {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  min-height: 1.1rem;
+  border-radius: 0.15rem;
+}
+
+.vb-value {
+  position: absolute;
+  right: 0.35rem;
+  top: 0.35rem;
+  color: #0B1217;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.vb-lever-list {
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+}
+
+.vb-lever-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.vb-lever-row:last-child {
+  border-bottom: 0;
+}
+
+.vb-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+.vb-lever-title {
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.vb-lever-desc {
+  color: var(--dim);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.vb-lever-value {
+  font-size: 0.9rem;
+}
+
+.vb-total {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+}
+
+.vb-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.vb-total-row:last-child {
+  border-bottom: 0;
+}
+
+.vb-total-row span {
+  color: var(--dim);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 900px) {
+  .value-bridge {
+    padding: 1.25rem;
+  }
+
+  .vb-header {
+    flex-direction: column;
+  }
+
+  .vb-metrics {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .vb-metric {
+    flex: 1 1 9rem;
+  }
+}
+</style>

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ValueBridge from '../components/ValueBridge.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog'))
@@ -276,6 +277,19 @@ function formatDate(date: Date) {
       <div class="dif-title">Socio de largo plazo, no consultor de paso</div>
       <p class="dif-text">Nuestro modelo está diseñado para acompañar la implementación y monitorear el ROIC mes a mes — no entregar un reporte y desaparecer.</p>
     </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="label">El diagnóstico en acción</p>
+    <h2>De dónde está a dónde puede llegar.</h2>
+    <p class="section-sub">
+      Value bridge real de Big Retailer Inc. — calculado con 8 años
+      de estados financieros. El mismo análisis aplicado a su empresa
+      en 2–6 semanas.
+    </p>
+    <ValueBridge />
   </div>
 </section>
 
