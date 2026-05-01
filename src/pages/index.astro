@@ -98,45 +98,82 @@ function formatDate(date: Date) {
 <!-- METODOLOGÍA -->
 <section id="metodologia" class="section">
   <div class="label">Lo que hace Sintelo</div>
-  <h2>Un programa estructurado para maximizar<br>el ROIC de su empresa.</h2>
-  <div class="fases-grid">
-    <div class="fase">
-      <div class="fase-num">1</div>
-      <div class="fase-title">Diagnóstico</div>
-      <div class="fase-time">2–6 semanas</div>
-      <ul class="fase-list">
-        <li>Solicitud de datos financieros y operativos</li>
-        <li>Escaneo de la cadena de valor</li>
-        <li>Cálculo de ROIC actual</li>
-        <li>Benchmarking vs. sector</li>
-        <li>Heatmap de levers por impacto</li>
-      </ul>
+  <h2>Tres productos. Una lógica secuencial.</h2>
+
+  <!-- CADENA SECUENCIAL -->
+  <div class="cadena">
+
+    <!-- Fase 1 -->
+    <div class="cadena-bloque">
+      <div class="cadena-num-tag">Fase 1</div>
+      <div class="cadena-card">
+        <div class="cadena-title">Diagnóstico Completo</div>
+        <div class="cadena-time">2–4 semanas · precio fijo</div>
+        <ul class="fase-list">
+          <li>Cálculo de ROIC actual y descomposición por palanca</li>
+          <li>Escaneo completo de la cadena de valor</li>
+          <li>Benchmarking vs. sector</li>
+          <li>Heatmap de levers cuantificados en pesos</li>
+          <li>ROIC potencial y roadmap de iniciativas</li>
+        </ul>
+      </div>
     </div>
-    <div class="fase">
-      <div class="fase-num">2</div>
-      <div class="fase-title">Priorización</div>
-      <div class="fase-time">1–2 semanas</div>
-      <ul class="fase-list">
-        <li>Matriz impacto vs. esfuerzo</li>
-        <li>Quick wins (primeros 90 días)</li>
-        <li>Roadmap de olas</li>
-        <li>Business case cuantificado</li>
-        <li>Plan de implementación</li>
-      </ul>
+
+    <!-- Flecha -->
+    <div class="cadena-arrow" aria-hidden="true">→</div>
+
+    <!-- Fase 2 -->
+    <div class="cadena-bloque cadena-bloque-wide">
+      <div class="cadena-num-tag">Fase 2</div>
+      <div class="cadena-card cadena-card-split">
+        <div class="cadena-title">Implementación</div>
+        <div class="cadena-time">Con el diagnóstico en mano — elija su track</div>
+        <div class="tracks">
+          <div class="track track-a">
+            <div class="track-label">Track A</div>
+            <div class="track-title">Implementación Acelerada</div>
+            <div class="track-price">$25–35K / mes</div>
+            <ul class="fase-list">
+              <li>Ejecución semanal por olas</li>
+              <li>Frameworks de captura de valor</li>
+              <li>Dashboard mensual de ROIC</li>
+              <li>Capacidades internas instaladas</li>
+            </ul>
+          </div>
+          <div class="track-divider" aria-hidden="true">o</div>
+          <div class="track track-b">
+            <div class="track-label">Track B</div>
+            <div class="track-title">Monitoreo Mensual</div>
+            <div class="track-price">$12–15K / mes</div>
+            <ul class="fase-list">
+              <li>Dashboard de ROIC actualizado</li>
+              <li>Informe mensual de una página</li>
+              <li>Revisión mensual con dirección</li>
+              <li>Disciplina de capital a largo plazo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="fase">
-      <div class="fase-num">3</div>
-      <div class="fase-title">Implementación</div>
-      <div class="fase-time">12–24 meses</div>
-      <ul class="fase-list">
-        <li>Ejecución por olas</li>
-        <li>Dashboard mensual de ROIC</li>
-        <li>Tracking de ahorro acumulado</li>
-        <li>Capacidades internas instaladas</li>
-        <li>Informe final de valor creado</li>
-      </ul>
-    </div>
+
   </div>
+
+  <!-- SEPARADOR -->
+  <div class="cadena-separador">
+    <div class="cadena-sep-line"></div>
+    <div class="cadena-sep-texto">Producto independiente</div>
+    <div class="cadena-sep-line"></div>
+  </div>
+
+  <!-- DUE DILIGENCE -->
+  <div class="dd-card">
+    <div class="dd-encabezado">
+      <div class="dd-titulo">Due Diligence Operacional</div>
+      <div class="dd-tag">Para compradores estratégicos · family offices · private equity</div>
+    </div>
+    <p class="dd-desc">Los mismos modelos del diagnóstico aplicados a una empresa que usted quiere adquirir. ROIC histórico real, capital de trabajo verdadero y potencial de mejora post-adquisición — antes de cerrar el trato.</p>
+  </div>
+
 </section>
 
 <!-- 10 LEVERS -->
@@ -529,12 +566,36 @@ function formatDate(date: Date) {
 .palanca-items { font-size: 13px; color: var(--dim); margin-bottom: 0.75rem; }
 .palanca-arrow { font-size: 12px; color: var(--accent); letter-spacing: 0.04em; }
 
-.fases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
-.fase { border: 0.5px solid rgba(255,255,255,0.07); padding: 2.5rem; }
-.fase-num { font-family: var(--serif); font-size: 48px; color: var(--accent); opacity: 0.3; line-height: 1; margin-bottom: 1rem; }
-.fase-title { font-family: var(--serif); font-size: 24px; color: #F0EBE0; margin-bottom: 0.25rem; }
-.fase-time { font-size: 12px; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
-.fase-list { list-style: none; padding: 0; border-top: 0.5px solid var(--border); padding-top: 1.25rem; }
+/* Cadena secuencial */
+.cadena { display: flex; align-items: flex-start; gap: 0; margin-top: 4rem; }
+.cadena-bloque { flex: 1; }
+.cadena-bloque-wide { flex: 1.8; }
+.cadena-num-tag { font-size: 11px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem; }
+.cadena-card { border: 0.5px solid rgba(255,255,255,0.07); padding: 2.5rem; height: 100%; box-sizing: border-box; }
+.cadena-card-split { display: flex; flex-direction: column; }
+.cadena-title { font-family: var(--serif); font-size: 24px; color: #F0EBE0; margin-bottom: 0.25rem; }
+.cadena-time { font-size: 12px; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
+.cadena-arrow { flex: 0 0 auto; align-self: center; font-size: 28px; color: var(--accent); opacity: 0.4; padding: 0 1.25rem; margin-top: 2rem; }
+/* Tracks dentro de Fase 2 */
+.tracks { display: flex; gap: 0; flex: 1; margin-top: 1.5rem; border-top: 0.5px solid var(--border); padding-top: 1.5rem; }
+.track { flex: 1; padding-right: 1.5rem; }
+.track-b { padding-right: 0; padding-left: 1.5rem; border-left: 0.5px solid rgba(255,255,255,0.07); }
+.track-divider { flex: 0 0 auto; align-self: center; font-size: 11px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; writing-mode: vertical-rl; padding: 0 0.5rem; }
+.track-label { font-size: 11px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+.track-title { font-family: var(--serif); font-size: 18px; color: #F0EBE0; margin-bottom: 0.25rem; }
+.track-price { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 1.25rem; opacity: 0.8; }
+/* Separador */
+.cadena-separador { display: flex; align-items: center; gap: 1.5rem; margin: 4rem 0 2.5rem; }
+.cadena-sep-line { flex: 1; height: 0.5px; background: rgba(255,255,255,0.07); }
+.cadena-sep-texto { font-size: 11px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+/* Due Diligence */
+.dd-card { border: 0.5px solid rgba(255,255,255,0.07); padding: 2.5rem; display: flex; align-items: flex-start; gap: 3rem; }
+.dd-encabezado { flex: 0 0 auto; min-width: 220px; }
+.dd-titulo { font-family: var(--serif); font-size: 24px; color: #F0EBE0; margin-bottom: 0.5rem; }
+.dd-tag { font-size: 11px; color: var(--accent); letter-spacing: 0.04em; opacity: 0.8; }
+.dd-desc { font-size: 13px; color: var(--dim); line-height: 1.8; flex: 1; }
+/* Lista de fases (reutilizada) */
+.fase-list { list-style: none; padding: 0; border-top: 0.5px solid var(--border); padding-top: 1.25rem; margin-top: 1.25rem; }
 .fase-list li { font-size: 13px; color: var(--dim); padding: 0.4rem 0; border-bottom: 0.5px solid rgba(255,255,255,0.03); line-height: 1.5; }
 .fase-list li::before { content: "—  "; color: var(--accent); font-size: 11px; }
 
@@ -638,7 +699,11 @@ function formatDate(date: Date) {
 .gracias-sub { font-size: 14px; color: var(--dim); line-height: 1.7; }
 
 @media (max-width: 900px) {
-  .levers-grid, .fases-grid, .ahora-grid, .resultados-nums, .resultados-ejemplos { grid-template-columns: 1fr; }
+  .levers-grid, .ahora-grid, .resultados-nums, .resultados-ejemplos { grid-template-columns: 1fr; }
+  .cadena { flex-direction: column; }
+  .cadena-arrow { align-self: flex-start; transform: rotate(90deg); padding: 0.5rem 0; margin: 0; }
+  .cadena-bloque, .cadena-bloque-wide { flex: unset; width: 100%; }
+  .dd-card { flex-direction: column; gap: 1.25rem; }
   .pasos-grid { flex-direction: column; }
   .paso-sep { display: none; }
   .number-strip { grid-template-columns: 1fr; }
@@ -652,6 +717,9 @@ function formatDate(date: Date) {
   .section { padding: 4rem 1.5rem; }
   .cta-section { padding: 5rem 1.5rem; }
   .problema-grid, .roic-grid, .services-grid, .blog-grid, .about-grid, .diferenciadores-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .tracks { flex-direction: column; gap: 1.5rem; }
+  .track-b { padding-left: 0; border-left: none; border-top: 0.5px solid rgba(255,255,255,0.07); padding-top: 1.5rem; }
+  .track-divider { writing-mode: horizontal-tb; padding: 0.5rem 0; }
   .roic-formula { flex-direction: column; text-align: center; padding: 2rem; }
   .form-row { grid-template-columns: 1fr; }
 }
