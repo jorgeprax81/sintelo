@@ -18,6 +18,7 @@ export interface BalanceRow {
   inventario: NumericLike;
   cuentas_por_pagar: NumericLike;
   inventario_promedio_historico?: NumericLike;
+  inventario_promedio_anos_1_a_6?: NumericLike;
 }
 
 export interface Lever {
@@ -25,6 +26,7 @@ export interface Lever {
   palanca: 'A - Margen' | 'B - Capital';
   color: string;
   impacto: number;
+  delta_pp: number;
   descripcion: string;
   unidad: 'NOPAT' | 'capital liberado';
   frecuencia?: 'anual';
@@ -90,7 +92,7 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
   if (rows.length === 0) return [];
 
   const actual = rows[rows.length - 1];
-  const historical = rows.slice(0, -1);
+  const historical = rows.length >= 7 ? rows.slice(0, 6) : rows.slice(0, -1);
 
   const revActual = toNumber(actual.revenue);
   const sgaActual = Math.abs(toNumber(actual.sga));
@@ -117,8 +119,15 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
   const leverCapex = Math.max(0, capexPromedio4 * 0.25);
 
   const inventarioActual = toNumber(balance.inventario);
-  const inventarioHistoricoPromedio = toNumber(balance.inventario_promedio_historico);
+  const inventarioHistoricoPromedio = toNumber(
+    balance.inventario_promedio_anos_1_a_6 ?? balance.inventario_promedio_historico
+  );
   const leverInventario = Math.max(0, inventarioActual - inventarioHistoricoPromedio);
+
+  const taxRate = inferTaxRate(actual);
+  const capitalInvertidoActual = getInvestedCapital(balance);
+  const calcDeltaPp = (impacto: number) =>
+    Number(((impacto * (1 - taxRate)) / Math.max(1, capitalInvertidoActual) * 100).toFixed(1));
 
   return [
     {
@@ -126,6 +135,7 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
       palanca: 'A - Margen',
       color: '#7F77DD',
       impacto: Math.round(leverSga),
+      delta_pp: calcDeltaPp(leverSga),
       descripcion: 'SG&A crecio 25% en 8 anos mientras revenue crecio 15%',
       unidad: 'NOPAT'
     },
@@ -134,6 +144,7 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
       palanca: 'B - Capital',
       color: '#85B7EB',
       impacto: Math.round(leverCapex),
+      delta_pp: calcDeltaPp(leverCapex),
       descripcion: '$126B en capex en 4 anos sin ROIC minimo requerido',
       unidad: 'capital liberado',
       frecuencia: 'anual'
@@ -143,6 +154,7 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
       palanca: 'B - Capital',
       color: '#9FE1CB',
       impacto: Math.round(leverInventario),
+      delta_pp: calcDeltaPp(leverInventario),
       descripcion: 'Inventario salto $20B en Year 7 sin crecimiento de revenue',
       unidad: 'capital liberado'
     }
@@ -150,29 +162,16 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
 }
 
 export function buildValueBridge(actual: IncomeRow, balance: BalanceRow, levers: Lever[]): ValueBridge {
-  const roicActual = calcROIC(actual, balance);
-
-  const nopatActual = getNopat(actual);
-  const capitalActual = getInvestedCapital(balance);
-
-  const leverANopat = levers
-    .filter((lever) => lever.palanca === 'A - Margen')
-    .reduce((sum, lever) => sum + lever.impacto, 0);
-
-  const leverBCapital = levers
-    .filter((lever) => lever.palanca === 'B - Capital')
-    .reduce((sum, lever) => sum + lever.impacto, 0);
-
-  const nopatPotencial = nopatActual + leverANopat;
-  const capitalPotencial = Math.max(1, capitalActual - leverBCapital);
-  const roicPotencial = safeDivide(nopatPotencial, capitalPotencial);
+  const roicActualPct = calcROIC(actual, balance) * 100;
 
   const totalValor = levers.reduce((sum, lever) => sum + lever.impacto, 0);
+  const totalDeltaPp = levers.reduce((sum, lever) => sum + lever.delta_pp, 0);
+  const roicPotencialPct = roicActualPct + totalDeltaPp;
 
   return {
-    roic_actual: Number((roicActual * 100).toFixed(1)),
-    roic_potencial: Number((roicPotencial * 100).toFixed(1)),
-    delta_pp: Number(((roicPotencial - roicActual) * 100).toFixed(1)),
+    roic_actual: Number(roicActualPct.toFixed(1)),
+    roic_potencial: Number(roicPotencialPct.toFixed(1)),
+    delta_pp: Number(totalDeltaPp.toFixed(1)),
     levers,
     total_valor: Math.round(totalValor)
   };

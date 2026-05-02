@@ -60,10 +60,7 @@ const rowsForEngine = actualIndex >= 0 ? incomeRows.slice(0, actualIndex + 1) : 
 const leversEngine = calcLevers(rowsForEngine, actualBalance);
 const bridge = buildValueBridge(actualIncome, actualBalance, leversEngine);
 
-const leverRoiPp = bridge.levers.map((lever) => {
-  const ratio = bridge.total_valor > 0 ? lever.impacto / bridge.total_valor : 0;
-  return Number((bridge.delta_pp * ratio).toFixed(1));
-});
+const leverRoiPp = bridge.levers.map((lever) => lever.delta_pp);
 
 const leverWidths = bridge.levers.map((lever) => {
   const maxImpact = Math.max(...bridge.levers.map((item) => item.impacto), 1);
