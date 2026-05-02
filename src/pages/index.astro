@@ -38,6 +38,10 @@ const balanceForEngine = {
   ...balance,
   inventario_promedio_anos_1_a_6: inventarioPromedioAnios1a6
 };
+console.log('llamando calcLevers desde index:', {
+  balance_que_paso: balanceForEngine.periodo,
+  inventario: balanceForEngine.inventario
+});
 const levers = calcLevers(rows, balanceForEngine, cashflowRows.rows);
 const bridge = buildValueBridge(actual, balanceForEngine, levers);
 const roicActualDirect = calcROIC(actual, balanceForEngine) * 100;

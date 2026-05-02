@@ -96,6 +96,13 @@ export function calcROIC(income: IncomeRow, balance: BalanceRow): number {
 export function calcLevers(rows: IncomeRow[], balance: BalanceRow, cashflow?: CashFlowRow[]): Lever[] {
   if (rows.length === 0) return [];
 
+  console.log('calcLevers input:', {
+    periodos: rows.map(r => r.periodo),
+    balance_periodo: balance.periodo,
+    inventario_actual: balance.inventario,
+    cashflow_rows: cashflow?.length
+  });
+
   const actual = rows[rows.length - 1];
   const historical = rows.length >= 7 ? rows.slice(0, 6) : rows.slice(0, -1);
 
