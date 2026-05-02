@@ -1,6 +1,6 @@
 ---
 titulo: "Cómo calcular el ROIC de su empresa en una tarde"
-fecha: 2025-02-28
+fecha: 2026-02-28
 categoria: ROIC
 descripcion: No necesita un modelo financiero sofisticado. Necesita los datos correctos y saber qué incluir en el capital invertido — y qué dejar fuera.
 ---

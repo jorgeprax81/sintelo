@@ -1,6 +1,6 @@
 ---
 titulo: "El error más común al hacer due diligence operacional en México"
-fecha: 2025-02-10
+fecha: 2026-02-10
 categoria: Due Diligence
 descripcion: La mayoría de los compradores revisan el EBITDA ajustado. Pocos revisan el capital de trabajo real. Ahí es donde se esconden los problemas verdaderos.
 ---

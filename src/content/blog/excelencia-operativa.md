@@ -1,6 +1,6 @@
 ---
 titulo: "Excelencia operativa no se mide en horas trabajadas. Se mide en ROIC."
-fecha: 2025-04-21
+fecha: 2026-04-21
 categoria: Excelencia Operativa
 descripcion: La mayoría de las empresas industriales optimizan la actividad e ignoran el retorno. La diferencia entre trabajar más duro y trabajar más inteligente se mide en ROIC.
 ---

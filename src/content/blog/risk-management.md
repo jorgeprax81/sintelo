@@ -1,6 +1,6 @@
 ---
 titulo: "Tres riesgos que no aparecen en tu estado de resultados pero están destruyendo valor hoy."
-fecha: 2025-04-28
+fecha: 2026-04-28
 categoria: Risk Management
 descripcion: Los riesgos más peligrosos para una empresa industrial no están en el P&L. Están en el balance — y en las decisiones que nadie está midiendo.
 ---

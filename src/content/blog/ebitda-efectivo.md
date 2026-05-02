@@ -1,6 +1,6 @@
 ---
 titulo: "Por qué su empresa tiene buen EBITDA pero poco efectivo"
-fecha: 2025-03-12
+fecha: 2026-03-12
 categoria: Working Capital
 descripcion: El EBITDA mide rentabilidad contable. El efectivo mide realidad. La diferencia vive en tres líneas del balance que la mayoría ignora.
 ---
