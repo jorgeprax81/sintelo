@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { getPool } from '../lib/db';
-import { buildValueBridge, calcLevers, type BalanceRow, type IncomeRow } from '../lib/roic-engine';
+import { buildValueBridge, calcLevers, calcROIC, type BalanceRow, type IncomeRow } from '../lib/roic-engine';
 
 export const prerender = false;
 
@@ -71,6 +71,19 @@ const leverWidths = bridge.levers.map((lever) => {
   const maxImpact = Math.max(...bridge.levers.map((item) => item.impacto), 1);
   return `${Math.round((lever.impacto / maxImpact) * 100)}%`;
 });
+
+// Hallazgos derivados desde data — Big Retailer Inc.
+const firstIncome = incomeRows[0];
+const firstBalance = balanceRows[0];
+const yearsSpan = incomeRows.length - 1;
+const roicInicial = Number((calcROIC(firstIncome, firstBalance) * 100).toFixed(1));
+const roicActual = bridge.roic_actual;
+const sgaGrowth = Number(((Math.abs(Number(actualIncome.sga)) / Math.abs(Number(firstIncome.sga)) - 1) * 100).toFixed(0));
+const revenueGrowth = Number(((Number(actualIncome.revenue) / Number(firstIncome.revenue) - 1) * 100).toFixed(0));
+const inventarioActual = Number(actualBalanceRaw.inventario);
+const inventarioDelta = Math.round((inventarioActual - inventarioPromedioHistorico) / 1000);
+const inventarioPromedio = Math.round(inventarioPromedioHistorico / 1000);
+const inventarioActualB = Math.round(inventarioActual / 1000);
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -422,18 +435,19 @@ function formatDate(date: Date) {
       <div class="demo-company">Big Retailer Inc.</div>
       <p class="demo-desc">Retailer global · $559B en revenue · 8 años de estados financieros completos</p>
       <div class="demo-hallazgos">
-        <div class="demo-hallazgo"><div class="demo-hallazgo-num">01</div><div class="demo-hallazgo-text">ROIC cayó de 13.2% a 5.6% en 4 años — capital creciendo más que retornos</div></div>
-        <div class="demo-hallazgo"><div class="demo-hallazgo-num">02</div><div class="demo-hallazgo-text">SG&A creció 25% mientras revenue creció 15% — overhead sin control</div></div>
-        <div class="demo-hallazgo"><div class="demo-hallazgo-num">03</div><div class="demo-hallazgo-text">Inventario saltó $20B en un año sin explicación — señal de alerta crítica</div></div>
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">01</div><div class="demo-hallazgo-text">ROIC cayó de {roicInicial}% a {roicActual}% en {yearsSpan} años — capital creciendo más que retornos</div></div>
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">02</div><div class="demo-hallazgo-text">SG&amp;A creció {sgaGrowth}% mientras revenue creció {revenueGrowth}% — overhead sin control</div></div>
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">03</div><div class="demo-hallazgo-text">Inventario creció ${inventarioDelta}B sobre el promedio histórico (${inventarioActualB}B vs ${inventarioPromedio}B)</div></div>
       </div>
     </div>
     <div class="demo-right">
       <div class="demo-impacto-label">Valor capturable estimado</div>
-      <div class="demo-impacto-val">$36B</div>
+      <div class="demo-impacto-val">${(bridge.total_valor / 1000).toFixed(1)}B</div>
       <div class="demo-impacto-sub">en tres iniciativas prioritarias</div>
       <div class="demo-items">
-        <div class="demo-item"><div class="demo-item-desc">Recuperar 2pp de EBITDA vía reducción de overhead</div><div class="demo-item-val">~$11B</div></div>
-        <div class="demo-item"><div class="demo-item-desc">Normalizar inventario de $65B a $48B</div><div class="demo-item-val">~$17B</div></div>
+        <div class="demo-item"><div class="demo-item-desc">{bridge.levers[0].nombre}</div><div class="demo-item-val">~${(bridge.levers[0].impacto / 1000).toFixed(1)}B</div></div>
+        <div class="demo-item"><div class="demo-item-desc">{bridge.levers[1].nombre}</div><div class="demo-item-val">~${(bridge.levers[1].impacto / 1000).toFixed(1)}B</div></div>
+        <div class="demo-item"><div class="demo-item-desc">{bridge.levers[2].nombre}</div><div class="demo-item-val">~${(bridge.levers[2].impacto / 1000).toFixed(1)}B</div></div>
       </div>
       <a href="/demo/big-retailer" class="btn-demo">Ver diagnóstico completo →</a>
     </div>
