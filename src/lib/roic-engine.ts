@@ -35,6 +35,8 @@ export interface Lever {
   descripcion: string;
   unidad: 'NOPAT' | 'capital liberado';
   frecuencia?: 'anual';
+  tiempo_captura_meses: number;
+  facilidad_captura: number;
 }
 
 export interface ValueBridge {
@@ -43,6 +45,8 @@ export interface ValueBridge {
   delta_pp: number;
   levers: Lever[];
   total_valor: number;
+  nopat_margin: number;
+  capital_turnover: number;
 }
 
 function toNumber(value: NumericLike): number {
@@ -145,7 +149,9 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow, cashflow?: Ca
       impacto: Math.round(leverSga),
       delta_pp: calcDeltaPp(leverSga),
       descripcion: 'SG&A crecio 25% en 8 anos mientras revenue crecio 15%',
-      unidad: 'NOPAT'
+      unidad: 'NOPAT',
+      tiempo_captura_meses: 18,
+      facilidad_captura: 6
     },
     {
       nombre: 'Criterio ROIC en capex',
@@ -155,7 +161,9 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow, cashflow?: Ca
       delta_pp: calcDeltaPp(leverCapex),
       descripcion: '$126B en capex en 4 anos sin ROIC minimo requerido',
       unidad: 'capital liberado',
-      frecuencia: 'anual'
+      frecuencia: 'anual',
+      tiempo_captura_meses: 12,
+      facilidad_captura: 8
     },
     {
       nombre: 'Normalizar inventario',
@@ -164,7 +172,9 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow, cashflow?: Ca
       impacto: Math.round(leverInventario),
       delta_pp: calcDeltaPp(leverInventario),
       descripcion: 'Inventario salto $20B en Year 7 sin crecimiento de revenue',
-      unidad: 'capital liberado'
+      unidad: 'capital liberado',
+      tiempo_captura_meses: 6,
+      facilidad_captura: 9
     }
   ];
 }
@@ -176,11 +186,20 @@ export function buildValueBridge(actual: IncomeRow, balance: BalanceRow, levers:
   const totalDeltaPp = levers.reduce((sum, lever) => sum + lever.delta_pp, 0);
   const roicPotencialPct = roicActualPct + totalDeltaPp;
 
+  // DuPont decomposition: ROIC = NOPAT margin × Capital turnover
+  const revenue = toNumber(actual.revenue);
+  const nopat = getNopat(actual);
+  const capital = getInvestedCapital(balance);
+  const nopatMargin = safeDivide(nopat, revenue) * 100;
+  const capitalTurnover = safeDivide(revenue, capital);
+
   return {
     roic_actual: Number(roicActualPct.toFixed(1)),
     roic_potencial: Number(roicPotencialPct.toFixed(1)),
     delta_pp: Number(totalDeltaPp.toFixed(1)),
     levers,
-    total_valor: Math.round(totalValor)
+    total_valor: Math.round(totalValor),
+    nopat_margin: Number(nopatMargin.toFixed(1)),
+    capital_turnover: Number(capitalTurnover.toFixed(2))
   };
 }

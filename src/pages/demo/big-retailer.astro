@@ -104,6 +104,30 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 
 <!-- WATERFALL -->
 <section class="section">
+  <div class="label">Descomposición DuPont · cómo se construye el ROIC</div>
+  <p class="section-body" style="margin-bottom:2rem">El ROIC se descompone en dos drivers que multiplicados dan el retorno total. Cada lever del diagnóstico mueve uno de los dos.</p>
+  <div class="dupont-tree" style="margin-bottom:3rem">
+    <div class="dupont-roic">
+      <div class="dupont-label">ROIC actual</div>
+      <div class="dupont-val">{bridge.roic_actual.toFixed(1)}%</div>
+    </div>
+    <div class="dupont-eq">=</div>
+    <div class="dupont-driver">
+      <div class="dupont-label">NOPAT margin</div>
+      <div class="dupont-val">{bridge.nopat_margin.toFixed(1)}%</div>
+      <div class="dupont-formula">NOPAT ÷ Revenue</div>
+      <div class="dupont-palanca dupont-pa">Palanca A · Margen</div>
+      <div class="dupont-items">SG&A · Pricing · Costos · Mezcla</div>
+    </div>
+    <div class="dupont-times">×</div>
+    <div class="dupont-driver">
+      <div class="dupont-label">Capital turnover</div>
+      <div class="dupont-val">{bridge.capital_turnover.toFixed(2)}x</div>
+      <div class="dupont-formula">Revenue ÷ Capital invertido</div>
+      <div class="dupont-palanca dupont-pb">Palanca B · Capital</div>
+      <div class="dupont-items">Working capital · Capex · Activos</div>
+    </div>
+  </div>
   <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
   <div style="position:relative;height:320px;margin-bottom:1rem;">
     <canvas id="wfChart" role="img" aria-label={`Waterfall ROIC de ${bridge.roic_actual.toFixed(1)}% a ${bridge.roic_potencial.toFixed(1)}% via tres levers`}>
@@ -607,6 +631,75 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 .rg-arrow { font-size: 32px; color: var(--accent); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; background: var(--bg); }
 
 .wf-legend { display: flex; gap: 1.5rem; font-size: 12px; color: var(--dim); max-width: 100%; }
+/* DUPONT TREE */
+.dupont-tree {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0;
+}
+.dupont-roic, .dupont-driver {
+  flex: 1 1 200px;
+  border: 0.5px solid rgba(255,255,255,0.1);
+  padding: 1.5rem 1.25rem;
+  background: rgba(255,255,255,0.015);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dupont-roic {
+  background: rgba(74,143,212,0.08);
+  border-color: rgba(74,143,212,0.3);
+}
+.dupont-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.dupont-val {
+  font-family: var(--serif);
+  font-size: clamp(28px, 3vw, 40px);
+  color: #F0EBE0;
+  line-height: 1;
+  margin: 0.25rem 0;
+}
+.dupont-formula {
+  font-size: 12px;
+  color: var(--dim);
+  font-family: var(--sans);
+  letter-spacing: 0.02em;
+}
+.dupont-palanca {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  display: inline-block;
+  width: fit-content;
+}
+.dupont-pa { background: rgba(127,119,221,0.15); color: #B4ADE8; border: 0.5px solid rgba(127,119,221,0.3); }
+.dupont-pb { background: rgba(133,183,235,0.15); color: #A8C9EE; border: 0.5px solid rgba(133,183,235,0.3); }
+.dupont-items {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.dupont-eq, .dupont-times {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 32px;
+  color: var(--dim);
+  flex: 0 0 24px;
+}
+@media (max-width: 768px) {
+  .dupont-eq, .dupont-times { flex: 1 0 100%; padding: 0.5rem 0; }
+}
+
 .leg-item { display: flex; align-items: center; gap: .4rem; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 

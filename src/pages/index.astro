@@ -358,6 +358,34 @@ function formatDate(date: Date) {
   </div>
 </section>
 
+<!-- DUPONT -->
+<section class="section">
+  <div class="label">Descomposición DuPont · cómo se construye el ROIC</div>
+  <p class="section-body" style="margin-bottom:2rem">El ROIC se descompone en dos drivers que multiplicados dan el retorno total. Cada lever del diagnóstico mueve uno de los dos. Ésta es la lógica que conecta el análisis con las palancas.</p>
+  <div class="dupont-tree">
+    <div class="dupont-roic">
+      <div class="dupont-label">ROIC actual</div>
+      <div class="dupont-val">{bridge.roic_actual.toFixed(1)}%</div>
+    </div>
+    <div class="dupont-eq">=</div>
+    <div class="dupont-driver">
+      <div class="dupont-label">NOPAT margin</div>
+      <div class="dupont-val">{bridge.nopat_margin.toFixed(1)}%</div>
+      <div class="dupont-formula">NOPAT ÷ Revenue</div>
+      <div class="dupont-palanca dupont-pa">Palanca A · Margen</div>
+      <div class="dupont-items">SG&A · Pricing · Costos · Mezcla</div>
+    </div>
+    <div class="dupont-times">×</div>
+    <div class="dupont-driver">
+      <div class="dupont-label">Capital turnover</div>
+      <div class="dupont-val">{bridge.capital_turnover.toFixed(2)}x</div>
+      <div class="dupont-formula">Revenue ÷ Capital invertido</div>
+      <div class="dupont-palanca dupont-pb">Palanca B · Capital</div>
+      <div class="dupont-items">Working capital · Capex · Activos</div>
+    </div>
+  </div>
+</section>
+
 <!-- WATERFALL -->
 <section class="section">
   <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
