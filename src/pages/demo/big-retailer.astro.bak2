@@ -81,7 +81,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 
 <section class="hero">
   <div class="eyebrow"><span class="dot"></span> Performance Improvement Potential · Big Retailer Inc.</div>
-  <h1>De {bridge.roic_actual.toFixed(1)}% a {bridge.roic_potencial.toFixed(1)}% de ROIC.<br><em>${(bridge.total_valor / 1000).toFixed(1)}B USD de valor capturado en 3 años.</em></h1>
+  <h1>De {bridge.roic_actual.toFixed(1)}% a {bridge.roic_potencial.toFixed(1)}% de ROIC.<br><em>${(bridge.total_valor / 1000).toFixed(1)}B de valor capturado en 3 años.</em></h1>
   <p class="sub">Diagnóstico basado en 8 periodos de estados financieros reales. Tres levers prioritarios con impacto cuantificado sobre NOPAT y capital invertido.</p>
   <div class="disclaimer"><span class="disc-dot"></span> Empresa de demostración: Big Retailer Inc. Cifras en USD millones.</div>
 </section>
@@ -130,7 +130,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
       <div class="lever">
         <div class="lname">{String(index + 1).padStart(2, '0')} · {lever.nombre}</div>
         <div class="lbar-wrap"><div class="lbar" style={`width:${leverWidths[index]};background:${lever.color}`}></div></div>
-        <div class="lval">+${(lever.impacto / 1000).toFixed(1)}B USD{lever.frecuencia === 'anual' ? '/año' : ''}</div>
+        <div class="lval">+${(lever.impacto / 1000).toFixed(1)}B{lever.frecuencia === 'anual' ? '/año' : ''}</div>
         <div class="lroic">+{leverRoiPp[index].toFixed(1)}pp</div>
       </div>
     ))}
@@ -250,7 +250,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
   <div class="label">Business case total</div>
   <div class="bc-grid">
     <div class="bc">
-      <div class="bc-val">${(bridge.total_valor / 1000).toFixed(1)}B USD</div>
+      <div class="bc-val">${(bridge.total_valor / 1000).toFixed(1)}B</div>
       <div class="bc-label">Valor total capturado</div>
       <div class="bc-sub">En 3 años de implementación</div>
     </div>
