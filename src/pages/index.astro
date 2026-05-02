@@ -1,13 +1,31 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ValueBridge from '../components/ValueBridge.astro';
 import { getCollection } from 'astro:content';
+import { pool } from '../lib/db';
+import { calcROIC, calcLevers, buildValueBridge } from '../lib/roic-engine';
 
 export const prerender = false;
 
 const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf())
   .slice(0, 3);
+
+const incomeRows = await pool.query(`
+  SELECT * FROM clientes.income_statement
+  WHERE empresa_id = 1 ORDER BY periodo ASC
+`);
+const balanceRow = await pool.query(`
+  SELECT * FROM clientes.balance_sheet
+  WHERE empresa_id = 1 ORDER BY periodo DESC LIMIT 1
+`);
+
+const rows = incomeRows.rows;
+const actual = rows[rows.length - 1];
+const balance = balanceRow.rows[0];
+const levers = calcLevers(rows, balance);
+const bridge = buildValueBridge(actual, balance, levers);
+const roicActualDirect = calcROIC(actual, balance) * 100;
+const maxLeverImpact = Math.max(...bridge.levers.map((lever) => lever.impacto), 1);
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -291,7 +309,35 @@ function formatDate(date: Date) {
       de estados financieros. El mismo análisis aplicado a su empresa
       en 2–6 semanas.
     </p>
-    <ValueBridge />
+    <div class="bridge-inline">
+      <div class="bridge-inline-header">
+        <div class="bridge-inline-company">Big Retailer Inc.</div>
+        <div class="bridge-inline-metrics">
+          <div class="bridge-inline-metric"><span>ROIC actual</span><strong>{bridge.roic_actual.toFixed(1)}%</strong></div>
+          <div class="bridge-inline-metric"><span>ROIC potencial</span><strong>{bridge.roic_potencial.toFixed(1)}%</strong></div>
+          <div class="bridge-inline-metric"><span>Delta</span><strong>+{bridge.delta_pp.toFixed(1)}pp</strong></div>
+        </div>
+      </div>
+      <div class="bridge-inline-note">ROIC directo calculado: {roicActualDirect.toFixed(1)}%</div>
+      <div class="bridge-inline-bars">
+        {bridge.levers.map((lever) => (
+          <div class="bridge-inline-row">
+            <div class="bridge-inline-row-title">{lever.nombre}</div>
+            <div class="bridge-inline-row-bar-wrap">
+              <div
+                class="bridge-inline-row-bar"
+                style={`width:${(lever.impacto / maxLeverImpact) * 100}%;background:${lever.color}`}
+              ></div>
+            </div>
+            <div class="bridge-inline-row-value">+${(lever.impacto / 1000).toFixed(1)}B</div>
+          </div>
+        ))}
+      </div>
+      <div class="bridge-inline-total">
+        <span>Total value bridge</span>
+        <strong>+${(bridge.total_valor / 1000).toFixed(1)}B</strong>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -530,6 +576,24 @@ function formatDate(date: Date) {
 .section h2 { font-size: clamp(28px, 4vw, 48px); color: #F0EBE0; line-height: 1.1; margin-bottom: 2rem; letter-spacing: -0.01em; }
 .section-body { color: var(--muted); font-size: 16px; max-width: 640px; line-height: 1.9; margin-bottom: 0.5rem; }
 
+.bridge-inline { border: 0.5px solid rgba(255,255,255,0.07); padding: 2rem; margin-top: 2rem; }
+.bridge-inline-header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-end; margin-bottom: 1rem; }
+.bridge-inline-company { font-family: var(--serif); font-size: 28px; color: #F0EBE0; }
+.bridge-inline-metrics { display: flex; gap: 0.75rem; }
+.bridge-inline-metric { border: 0.5px solid var(--border); padding: 0.6rem 0.8rem; min-width: 8rem; }
+.bridge-inline-metric span { display: block; font-size: 11px; color: var(--dim); margin-bottom: 0.2rem; }
+.bridge-inline-metric strong { font-size: 18px; color: #E8E3D8; }
+.bridge-inline-note { font-size: 12px; color: var(--dim); margin-bottom: 1rem; }
+.bridge-inline-bars { display: flex; flex-direction: column; gap: 0.7rem; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 1rem 0; }
+.bridge-inline-row { display: grid; grid-template-columns: 220px 1fr auto; gap: 1rem; align-items: center; }
+.bridge-inline-row-title { font-size: 12px; color: #C8C3B8; }
+.bridge-inline-row-bar-wrap { height: 16px; background: rgba(255,255,255,0.04); }
+.bridge-inline-row-bar { height: 100%; }
+.bridge-inline-row-value { font-size: 12px; color: var(--accent); font-weight: 500; }
+.bridge-inline-total { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; }
+.bridge-inline-total span { font-size: 12px; color: var(--dim); }
+.bridge-inline-total strong { font-size: 20px; color: #F0EBE0; }
+
 .problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 4rem; align-items: start; }
 .pain { padding: 2rem; border-left: 1px solid var(--accent-border); }
 .pain-accent { border-left-color: rgba(74,143,212,0.5); }
@@ -696,6 +760,9 @@ function formatDate(date: Date) {
 @media (max-width: 768px) {
   .hero { padding: 5rem 1.5rem 4rem; text-align: left; }
   .hero-ctas { justify-content: flex-start; }
+  .bridge-inline-header { flex-direction: column; align-items: flex-start; }
+  .bridge-inline-metrics { flex-wrap: wrap; }
+  .bridge-inline-row { grid-template-columns: 1fr; gap: 0.45rem; }
   .demo-card { grid-template-columns: 1fr; }
   .demo-right { border-left: none; padding-left: 0; border-top: 0.5px solid rgba(74,143,212,0.2); padding-top: 2rem; }
   .section { padding: 4rem 1.5rem; }
