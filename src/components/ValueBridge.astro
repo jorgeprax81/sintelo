@@ -2,41 +2,38 @@
 const company = 'Big Retailer Inc.';
 const roicActual = 10.1;
 const roicPotencial = 13.5;
-const deltaRoicPp = +(roicPotencial - roicActual).toFixed(1);
+const deltaRoic = '+3.4pp ROIC';
+const periodo = 'Year 7';
 
 const baseValueM = 0;
+const totalBridgeM = 36000;
 
 const levers = [
   {
     key: 'sga-overhead',
     name: 'Reducir SG&A / Overhead',
-    palanca: 'A (Margen)',
-    description: 'SG&A crecio 25% en 8 anos. Revenue crecio 15%.',
+    palanca: 'A — Margen',
+    description: 'SG&A creció 25% en 8 años mientras revenue creció 15%',
     impactM: 11000,
-    color: '#7F77DD',
-    isAnnual: false
+    color: '#7F77DD'
   },
   {
     key: 'roic-capex',
     name: 'Criterio ROIC en capex',
-    palanca: 'B (Capital)',
-    description: '$126B en capex en 4 anos sin criterio de ROIC minimo',
+    palanca: 'B — Capital',
+    description: '$126B en capex en 4 años sin ROIC mínimo requerido',
     impactM: 8000,
-    color: '#85B7EB',
-    isAnnual: true
+    color: '#85B7EB'
   },
   {
     key: 'inventario',
     name: 'Normalizar inventario',
-    palanca: 'B (Capital)',
-    description: 'Inventario salto $20B en Year 7 sin crecimiento de revenue',
+    palanca: 'B — Capital',
+    description: 'Inventario saltó $20B en Year 7 sin crecimiento de revenue',
     impactM: 17000,
-    color: '#9FE1CB',
-    isAnnual: false
+    color: '#9FE1CB'
   }
 ];
-
-const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
 ---
 
 <section
@@ -48,7 +45,7 @@ const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
     <div>
       <p class="vb-eyebrow">Value Bridge</p>
       <h3>{company}</h3>
-      <p class="vb-sub">Business case total del demo: ${(totalBridgeM / 1000).toFixed(1)}B</p>
+      <p class="vb-sub">Periodo: {periodo} · Business case total: ${(totalBridgeM / 1000).toFixed(1)}B</p>
     </div>
     <div class="vb-metrics">
       <div class="vb-metric">
@@ -61,7 +58,7 @@ const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
       </div>
       <div class="vb-metric vb-metric-delta">
         <span class="vb-label">Delta ROIC</span>
-        <strong>+{deltaRoicPp.toFixed(1)}pp ROIC</strong>
+        <strong>{deltaRoic}</strong>
       </div>
     </div>
   </header>
@@ -114,10 +111,10 @@ const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
         <span class="vb-dot" style={`--dot:${lever.color}`}></span>
         <div class="vb-lever-copy">
           <div class="vb-lever-title">{lever.name}</div>
-          <div class="vb-lever-desc">Palanca {lever.palanca}</div>
+          <div class="vb-lever-desc">{lever.palanca}</div>
           <div class="vb-lever-desc">{lever.description}</div>
         </div>
-        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B{lever.isAnnual ? '/ano' : ''}</strong>
+        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B</strong>
       </li>
     ))}
   </ul>
@@ -182,8 +179,7 @@ const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
 
           if (valueNode) {
             const prefix = col.dataset.kind === 'lever' ? '+' : '';
-            const suffix = col.dataset.label === 'Criterio ROIC en capex' ? '/ano' : '';
-            valueNode.textContent = `${prefix}${formatBillions(value)}${suffix}`;
+            valueNode.textContent = `${prefix}${formatBillions(value)}`;
           }
         });
       });
