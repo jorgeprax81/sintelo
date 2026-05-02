@@ -1,25 +1,74 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import pg from 'pg';
-const { Pool } = pg;
+import { getPool } from '../../lib/db';
+import { buildValueBridge, calcLevers, type BalanceRow, type IncomeRow } from '../../lib/roic-engine';
 export const prerender = false;
 
-const pool = new Pool({
-  connectionString: process.env.BIGRETAILER_DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+const pool = getPool('bigretailer');
 
 const [isRes, bsRes, cfRes] = await Promise.all([
-  pool.query(`SELECT * FROM clientes.income_statement ORDER BY periodo`),
-  pool.query(`SELECT * FROM clientes.balance_sheet ORDER BY periodo`),
-  pool.query(`SELECT * FROM clientes.cash_flow ORDER BY periodo`),
+  pool.query(`SELECT * FROM clientes.income_statement WHERE empresa_id = 1 ORDER BY periodo`),
+  pool.query(`SELECT * FROM clientes.balance_sheet WHERE empresa_id = 1 ORDER BY periodo`),
+  pool.query(`SELECT * FROM clientes.cash_flow WHERE empresa_id = 1 ORDER BY periodo`),
 ]);
-
-await pool.end();
 
 const is = isRes.rows;
 const bs = bsRes.rows;
 const cf = cfRes.rows;
+
+const capexByPeriodo = new Map<string, number>(
+  cf.map((row) => [String(row.periodo), Number(row.capex || 0)])
+);
+
+const incomeRows: IncomeRow[] = is.map((row) => ({
+  periodo: String(row.periodo),
+  revenue: row.revenue,
+  sga: row.sga,
+  ebit: row.ebit,
+  impuestos: row.impuestos,
+  ebt: row.ebt,
+  capex: capexByPeriodo.get(String(row.periodo)) ?? 0
+}));
+
+const balanceRows: BalanceRow[] = bs.map((row) => ({
+  periodo: String(row.periodo),
+  ppe: row.ppe,
+  cuentas_por_cobrar: row.cuentas_por_cobrar,
+  inventario: row.inventario,
+  cuentas_por_pagar: row.cuentas_por_pagar
+}));
+
+const preferredPeriod = 'Year 7';
+const actualIncome = incomeRows.find((row) => row.periodo === preferredPeriod) ?? incomeRows[incomeRows.length - 1];
+const actualBalanceRaw = balanceRows.find((row) => row.periodo === actualIncome.periodo) ?? balanceRows[balanceRows.length - 1];
+
+const historicalInventories = balanceRows
+  .filter((row) => row.periodo !== actualBalanceRaw.periodo)
+  .map((row) => Number(row.inventario || 0));
+
+const inventarioPromedioHistorico = historicalInventories.length > 0
+  ? historicalInventories.reduce((sum, value) => sum + value, 0) / historicalInventories.length
+  : Number(actualBalanceRaw.inventario || 0);
+
+const actualBalance: BalanceRow = {
+  ...actualBalanceRaw,
+  inventario_promedio_historico: inventarioPromedioHistorico
+};
+
+const actualIndex = incomeRows.findIndex((row) => row.periodo === actualIncome.periodo);
+const rowsForEngine = actualIndex >= 0 ? incomeRows.slice(0, actualIndex + 1) : incomeRows;
+const leversEngine = calcLevers(rowsForEngine, actualBalance);
+const bridge = buildValueBridge(actualIncome, actualBalance, leversEngine);
+
+const leverRoiPp = bridge.levers.map((lever) => {
+  const ratio = bridge.total_valor > 0 ? lever.impacto / bridge.total_valor : 0;
+  return Number((bridge.delta_pp * ratio).toFixed(1));
+});
+
+const leverWidths = bridge.levers.map((lever) => {
+  const maxImpact = Math.max(...bridge.levers.map((item) => item.impacto), 1);
+  return `${Math.round((lever.impacto / maxImpact) * 100)}%`;
+});
 
 function fmt(n: number, parens = true) {
   if (n === 0) return '—';
@@ -35,7 +84,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 
 <section class="hero">
   <div class="eyebrow"><span class="dot"></span> Performance Improvement Potential · Big Retailer Inc.</div>
-  <h1>De 10.1% a 13.5% de ROIC.<br><em>$36B de valor capturado en 3 años.</em></h1>
+  <h1>De {bridge.roic_actual.toFixed(1)}% a {bridge.roic_potencial.toFixed(1)}% de ROIC.<br><em>${(bridge.total_valor / 1000).toFixed(1)}B de valor capturado en 3 años.</em></h1>
   <p class="sub">Diagnóstico basado en 8 periodos de estados financieros reales. Tres levers prioritarios con impacto cuantificado sobre NOPAT y capital invertido.</p>
   <div class="disclaimer"><span class="disc-dot"></span> Empresa de demostración: Big Retailer Inc. Cifras en USD millones.</div>
 </section>
@@ -45,12 +94,12 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
   <div class="label">ROIC actual vs potencial</div>
   <div class="roic-gap">
     <div class="rg">
-      <div class="rg-val cur">10.1%</div>
-      <div class="rg-label">ROIC actual · Year 7</div>
+      <div class="rg-val cur">{bridge.roic_actual.toFixed(1)}%</div>
+      <div class="rg-label">ROIC actual · {actualIncome.periodo}</div>
     </div>
     <div class="rg-arrow">→</div>
     <div class="rg">
-      <div class="rg-val pot">13.5%</div>
+      <div class="rg-val pot">{bridge.roic_potencial.toFixed(1)}%</div>
       <div class="rg-label">ROIC potencial · 3 años</div>
     </div>
   </div>
@@ -60,8 +109,8 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
 <section class="section">
   <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
   <div style="position:relative;height:240px;max-width:800px;margin-bottom:1rem;">
-    <canvas id="wfChart" role="img" aria-label="Waterfall ROIC de 10.1% a 13.5% via tres levers">
-      ROIC actual 10.1%, SGA +1.8pp, Capex +0.9pp, Inventario +0.7pp, ROIC potencial 13.5%
+    <canvas id="wfChart" role="img" aria-label={`Waterfall ROIC de ${bridge.roic_actual.toFixed(1)}% a ${bridge.roic_potencial.toFixed(1)}% via tres levers`}>
+      ROIC actual {bridge.roic_actual.toFixed(1)}%, {bridge.levers[0]?.nombre} +{leverRoiPp[0]?.toFixed(1)}pp, {bridge.levers[1]?.nombre} +{leverRoiPp[1]?.toFixed(1)}pp, {bridge.levers[2]?.nombre} +{leverRoiPp[2]?.toFixed(1)}pp, ROIC potencial {bridge.roic_potencial.toFixed(1)}%
     </canvas>
   </div>
   <div class="wf-legend">
@@ -80,24 +129,14 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
       <span>Valor capturado</span>
       <span>ROIC</span>
     </div>
-    <div class="lever">
-      <div class="lname">01 · Reducir SG&A overhead</div>
-      <div class="lbar-wrap"><div class="lbar" style="width:100%"></div></div>
-      <div class="lval">+$11B NOPAT</div>
-      <div class="lroic">+1.8pp</div>
-    </div>
-    <div class="lever">
-      <div class="lname">02 · Criterio ROIC en capex</div>
-      <div class="lbar-wrap"><div class="lbar" style="width:55%"></div></div>
-      <div class="lval">$8B liberados/año</div>
-      <div class="lroic">+0.9pp</div>
-    </div>
-    <div class="lever">
-      <div class="lname">03 · Normalizar inventario</div>
-      <div class="lbar-wrap"><div class="lbar" style="width:40%"></div></div>
-      <div class="lval">$17B liberados</div>
-      <div class="lroic">+0.7pp</div>
-    </div>
+    {bridge.levers.map((lever, index) => (
+      <div class="lever">
+        <div class="lname">{String(index + 1).padStart(2, '0')} · {lever.nombre}</div>
+        <div class="lbar-wrap"><div class="lbar" style={`width:${leverWidths[index]};background:${lever.color}`}></div></div>
+        <div class="lval">+${(lever.impacto / 1000).toFixed(1)}B{lever.frecuencia === 'anual' ? '/año' : ''}</div>
+        <div class="lroic">+{leverRoiPp[index].toFixed(1)}pp</div>
+      </div>
+    ))}
   </div>
 </section>
 
@@ -121,7 +160,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
       </div>
       <div class="ld-col">
         <div class="ld-col-label">Iniciativa</div>
-        <p>Auditoría de overhead por función<br>Target: -2pp SG&A en 18 meses<br>Valor: +$11B de NOPAT</p>
+        <p>Auditoría de overhead por función<br>Target: -2pp SG&A en 18 meses<br>Valor: +${(bridge.levers[0].impacto / 1000).toFixed(1)}B de NOPAT</p>
       </div>
     </div>
   </div>
@@ -142,7 +181,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
       </div>
       <div class="ld-col">
         <div class="ld-col-label">Iniciativa</div>
-        <p>Definir hurdle rate de 12% ROIC<br>Freeze capex no comprometido<br>Valor: $8B liberados/año</p>
+        <p>Definir hurdle rate de 12% ROIC<br>Freeze capex no comprometido<br>Valor: +${(bridge.levers[1].impacto / 1000).toFixed(1)}B liberados/año</p>
       </div>
     </div>
   </div>
@@ -163,7 +202,7 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
       </div>
       <div class="ld-col">
         <div class="ld-col-label">Iniciativa</div>
-        <p>Programa de liquidación selectiva<br>Target: $48B en 12 meses<br>Valor: $17B de capital liberado</p>
+        <p>Programa de liquidación selectiva<br>Target: $48B en 12 meses<br>Valor: +${(bridge.levers[2].impacto / 1000).toFixed(1)}B de capital liberado</p>
       </div>
     </div>
   </div>
@@ -214,17 +253,17 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
   <div class="label">Business case total</div>
   <div class="bc-grid">
     <div class="bc">
-      <div class="bc-val">$36B</div>
+      <div class="bc-val">${(bridge.total_valor / 1000).toFixed(1)}B</div>
       <div class="bc-label">Valor total capturado</div>
       <div class="bc-sub">En 3 años de implementación</div>
     </div>
     <div class="bc">
-      <div class="bc-val">13.5%</div>
+      <div class="bc-val">{bridge.roic_potencial.toFixed(1)}%</div>
       <div class="bc-label">ROIC potencial</div>
-      <div class="bc-sub">vs 10.1% actual</div>
+      <div class="bc-sub">vs {bridge.roic_actual.toFixed(1)}% actual</div>
     </div>
     <div class="bc">
-      <div class="bc-val">+3.4pp</div>
+      <div class="bc-val">+{bridge.delta_pp.toFixed(1)}pp</div>
       <div class="bc-label">Mejora de ROIC</div>
       <div class="bc-sub">En 3 años</div>
     </div>
@@ -488,18 +527,34 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
   </div>
 </section>
 
-<script>
+<script define:vars={{
+  roicActualChart: bridge.roic_actual,
+  roicPotencialChart: bridge.roic_potencial,
+  leverRoiPpChart: leverRoiPp,
+  leverNamesChart: bridge.levers.map((lever) => lever.nombre)
+}}>
 (function() {
   const s = document.createElement('script');
   s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
   s.onload = () => {
+    const starts = [0];
+    let running = roicActualChart;
+    for (const delta of leverRoiPpChart) {
+      starts.push(running);
+      running += delta;
+    }
+    starts.push(0);
+
+    const bars = [roicActualChart, ...leverRoiPpChart, roicPotencialChart];
+    const colors = ['#4A8FD4', ...leverRoiPpChart.map(() => '#4A9A7A'), '#4A9A7A'];
+
     new Chart(document.getElementById('wfChart'), {
       type: 'bar',
       data: {
-        labels: ['ROIC actual','Lever SG&A','Lever Capex','Lever Inventario','ROIC potencial'],
+        labels: ['ROIC actual', ...leverNamesChart, 'ROIC potencial'],
         datasets: [
-          { data: [0, 10.1, 11.9, 12.8, 0], backgroundColor: 'transparent', borderColor: 'transparent' },
-          { data: [10.1, 1.8, 0.9, 0.7, 13.5], backgroundColor: ['#4A8FD4','#4A9A7A','#4A9A7A','#4A9A7A','#4A9A7A'], borderColor: 'transparent', borderRadius: 2 }
+          { data: starts, backgroundColor: 'transparent', borderColor: 'transparent' },
+          { data: bars, backgroundColor: colors, borderColor: 'transparent', borderRadius: 2 }
         ]
       },
       options: {
@@ -512,8 +567,9 @@ const years = ['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6','Year 7','Y
               label: ctx => {
                 if(ctx.datasetIndex === 0) return null;
                 const i = ctx.dataIndex;
-                if(i === 0) return 'ROIC actual: 10.1%';
-                if(i === 4) return 'ROIC potencial: 13.5%';
+                const lastIndex = bars.length - 1;
+                if(i === 0) return 'ROIC actual: ' + roicActualChart.toFixed(1) + '%';
+                if(i === lastIndex) return 'ROIC potencial: ' + roicPotencialChart.toFixed(1) + '%';
                 return '+' + ctx.parsed.y.toFixed(1) + 'pp';
               }
             }

@@ -1,39 +1,28 @@
 ---
-const company = 'Big Retailer Inc.';
-const roicActual = 10.1;
-const roicPotencial = 13.5;
-const deltaRoic = '+3.4pp ROIC';
-const periodo = 'Year 7';
+const res = await fetch(new URL('/api/value-bridge', Astro.url));
+const data = await res.json();
+
+const company = String(data.empresa || 'Big Retailer Inc.');
+const roicActual = Number(data.roic_actual || 0);
+const roicPotencial = Number(data.roic_potencial || 0);
+const deltaRoicValue = Number(data.delta_roic_pp || 0);
+const deltaRoic = `${deltaRoicValue >= 0 ? '+' : ''}${deltaRoicValue.toFixed(1)}pp ROIC`;
+const periodo = String(data.periodo || 'Year 7');
 
 const baseValueM = 0;
-const totalBridgeM = 36000;
+const totalBridgeM = Number(data.total_value_bridge || 0);
 
-const levers = [
-  {
-    key: 'sga-overhead',
-    name: 'Reducir SG&A / Overhead',
-    palanca: 'A — Margen',
-    description: 'SG&A creció 25% en 8 años mientras revenue creció 15%',
-    impactM: 11000,
-    color: '#7F77DD'
-  },
-  {
-    key: 'roic-capex',
-    name: 'Criterio ROIC en capex',
-    palanca: 'B — Capital',
-    description: '$126B en capex en 4 años sin ROIC mínimo requerido',
-    impactM: 8000,
-    color: '#85B7EB'
-  },
-  {
-    key: 'inventario',
-    name: 'Normalizar inventario',
-    palanca: 'B — Capital',
-    description: 'Inventario saltó $20B en Year 7 sin crecimiento de revenue',
-    impactM: 17000,
-    color: '#9FE1CB'
-  }
-];
+const levers = Array.isArray(data.levers)
+  ? data.levers.map((lever: any, index: number) => ({
+      key: `${index}-${String(lever.nombre || 'lever').toLowerCase().replace(/\s+/g, '-')}`,
+      name: String(lever.nombre || ''),
+      palanca: String(lever.palanca || ''),
+      description: String(lever.descripcion || ''),
+      impactM: Number(lever.impacto || 0),
+      color: String(lever.color || '#7F77DD'),
+      frecuencia: String(lever.frecuencia || '')
+    }))
+  : [];
 ---
 
 <section
@@ -114,7 +103,7 @@ const levers = [
           <div class="vb-lever-desc">{lever.palanca}</div>
           <div class="vb-lever-desc">{lever.description}</div>
         </div>
-        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B</strong>
+        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B{lever.frecuencia === 'anual' ? '/año' : ''}</strong>
       </li>
     ))}
   </ul>
