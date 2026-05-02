@@ -70,6 +70,12 @@ console.log('llamando calcLevers desde index:', {
 const leversEngine = calcLevers(rowsForEngine, actualBalance, cf);
 const bridge = buildValueBridge(actualIncome, actualBalance, leversEngine);
 
+const leverRoiPp = bridge.levers.map((lever) => lever.delta_pp);
+const leverWidths = bridge.levers.map((lever) => {
+  const maxImpact = Math.max(...bridge.levers.map((item) => item.impacto), 1);
+  return `${Math.round((lever.impacto / maxImpact) * 100)}%`;
+});
+
 function formatDate(date: Date) {
   return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 }
@@ -343,39 +349,59 @@ function formatDate(date: Date) {
   </div>
 </section>
 
+<!-- WATERFALL -->
 <section class="section">
-  <div class="container">
-    <p class="label">El diagnóstico en acción</p>
-    <h2>De dónde está a dónde puede llegar.</h2>
-    <p class="section-sub">
-      Value bridge real de Big Retailer Inc. — calculado con 8 años
-      de estados financieros. El mismo análisis aplicado a su empresa
-      en 2–6 semanas.
-    </p>
-    <div class="bridge-inline">
-      <div class="bridge-inline-header">
-        <div class="bridge-inline-company">Big Retailer Inc.</div>
-        <div class="bridge-inline-metrics">
-          <div class="bridge-inline-metric"><span>ROIC actual</span><strong>{bridge.roic_actual.toFixed(1)}%</strong></div>
-          <div class="bridge-inline-metric"><span>ROIC potencial</span><strong>{bridge.roic_potencial.toFixed(1)}%</strong></div>
-          <div class="bridge-inline-metric"><span>Delta</span><strong>+{bridge.delta_pp.toFixed(1)}pp</strong></div>
-        </div>
-      </div>
+  <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
+  <div style="position:relative;height:240px;max-width:800px;margin-bottom:1rem;">
+    <canvas id="wfChart" role="img" aria-label={`Waterfall ROIC de ${bridge.roic_actual.toFixed(1)}% a ${bridge.roic_potencial.toFixed(1)}% via tres levers`}>
+      ROIC actual {bridge.roic_actual.toFixed(1)}%, {bridge.levers[0]?.nombre} +{leverRoiPp[0]?.toFixed(1)}pp, {bridge.levers[1]?.nombre} +{leverRoiPp[1]?.toFixed(1)}pp, {bridge.levers[2]?.nombre} +{leverRoiPp[2]?.toFixed(1)}pp, ROIC potencial {bridge.roic_potencial.toFixed(1)}%
+    </canvas>
+  </div>
+  <div class="wf-legend">
+    <span class="leg-item"><span class="leg-dot" style="background:#4A8FD4"></span>Punto de partida</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#4A9A7A"></span>Valor capturado por lever</span>
+  </div>
+</section>
 
-      <div class="vb-bars-vertical">
-        {bridge.levers.map((lever) => (
-          <div class="vb-bar-col">
-            <div class="vb-bar-val">+${(lever.impacto/1000).toFixed(1)}B</div>
-            <div class="vb-bar-pp">+{lever.delta_pp.toFixed(1)}pp</div>
-            <div class="vb-bar-v" style={`height:${Math.round(lever.impacto/bridge.total_valor*120)}px;background:${lever.color}`}></div>
-            <div class="vb-bar-nm">{lever.nombre}</div>
-          </div>
-        ))}
+<!-- LEVERS -->
+<section class="section">
+  <div class="label">Levers prioritarios · impacto cuantificado</div>
+  <div class="levers">
+    <div class="lever-header">
+      <span>Lever</span>
+      <span>Impacto relativo</span>
+      <span>Valor capturado</span>
+      <span>ROIC</span>
+    </div>
+    {bridge.levers.map((lever, index) => (
+      <div class="lever">
+        <div class="lname">{String(index + 1).padStart(2, '0')} · {lever.nombre}</div>
+        <div class="lbar-wrap"><div class="lbar" style={`width:${leverWidths[index]};background:${lever.color}`}></div></div>
+        <div class="lval">+${(lever.impacto / 1000).toFixed(1)}B{lever.frecuencia === 'anual' ? '/año' : ''}</div>
+        <div class="lroic">+{leverRoiPp[index].toFixed(1)}pp</div>
       </div>
-      <div class="bridge-inline-total">
-        <span>Total value bridge</span>
-        <strong>+${(bridge.total_valor / 1000).toFixed(1)}B · +{bridge.delta_pp.toFixed(1)}pp ROIC</strong>
-      </div>
+    ))}
+  </div>
+</section>
+
+<!-- BUSINESS CASE -->
+<section class="section">
+  <div class="label">Business case total</div>
+  <div class="bc-grid">
+    <div class="bc">
+      <div class="bc-val">${(bridge.total_valor / 1000).toFixed(1)}B</div>
+      <div class="bc-label">Valor total capturado</div>
+      <div class="bc-sub">En 3 años de implementación</div>
+    </div>
+    <div class="bc">
+      <div class="bc-val">{bridge.roic_potencial.toFixed(1)}%</div>
+      <div class="bc-label">ROIC potencial</div>
+      <div class="bc-sub">vs {bridge.roic_actual.toFixed(1)}% actual</div>
+    </div>
+    <div class="bc">
+      <div class="bc-val">+{bridge.delta_pp.toFixed(1)}pp</div>
+      <div class="bc-label">Mejora de ROIC</div>
+      <div class="bc-sub">En 3 años</div>
     </div>
   </div>
 </section>
@@ -588,6 +614,65 @@ function formatDate(date: Date) {
   </script>
 </section>
 
+<script define:vars={{
+  roicActualChart: bridge.roic_actual,
+  roicPotencialChart: bridge.roic_potencial,
+  leverRoiPpChart: leverRoiPp,
+  leverNamesChart: bridge.levers.map((lever) => lever.nombre)
+}}>
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+  s.onload = () => {
+    const starts = [0];
+    let running = roicActualChart;
+    for (const delta of leverRoiPpChart) {
+      starts.push(running);
+      running += delta;
+    }
+    starts.push(0);
+
+    const bars = [roicActualChart, ...leverRoiPpChart, roicPotencialChart];
+    const colors = ['#4A8FD4', ...leverRoiPpChart.map(() => '#4A9A7A'), '#4A9A7A'];
+
+    new Chart(document.getElementById('wfChart'), {
+      type: 'bar',
+      data: {
+        labels: ['ROIC actual', ...leverNamesChart, 'ROIC potencial'],
+        datasets: [
+          { data: starts, backgroundColor: 'transparent', borderColor: 'transparent' },
+          { data: bars, backgroundColor: colors, borderColor: 'transparent', borderRadius: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                if(ctx.datasetIndex === 0) return null;
+                const i = ctx.dataIndex;
+                const lastIndex = bars.length - 1;
+                if(i === 0) return 'ROIC actual: ' + roicActualChart.toFixed(1) + '%';
+                if(i === lastIndex) return 'ROIC potencial: ' + roicPotencialChart.toFixed(1) + '%';
+                return '+' + ctx.parsed.y.toFixed(1) + 'pp';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: '#7A7470', font: { size: 11 } }, grid: { display: false }, border: { color: 'rgba(255,255,255,.06)' } },
+          y: { stacked: true, min: 0, max: 16, ticks: { color: '#7A7470', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,.06)' } }
+        }
+      }
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
 </Layout>
 
 <style>
@@ -638,6 +723,25 @@ function formatDate(date: Date) {
 .bridge-inline-total { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; }
 .bridge-inline-total span { font-size: 12px; color: var(--dim); }
 .bridge-inline-total strong { font-size: 20px; color: #F0EBE0; }
+
+.wf-legend { display: flex; gap: 1.5rem; font-size: 12px; color: var(--dim); }
+.leg-item { display: flex; align-items: center; gap: .4rem; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+.levers { display: flex; flex-direction: column; gap: .5rem; }
+.lever-header { display: grid; grid-template-columns: 200px 1fr 140px 80px; gap: 1rem; padding: .5rem 1rem; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.lever { display: grid; grid-template-columns: 200px 1fr 140px 80px; gap: 1rem; align-items: center; padding: .875rem 1rem; border: .5px solid rgba(255,255,255,.06); }
+.lname { font-size: 12px; color: #C8C3B8; }
+.lbar-wrap { height: 18px; background: rgba(255,255,255,.03); }
+.lbar { height: 100%; opacity: .65; }
+.lval { font-size: 12px; color: #4A9A7A; text-align: right; font-weight: 500; }
+.lroic { font-size: 12px; color: #4A9A7A; text-align: right; }
+
+.bc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: .5px solid var(--border); }
+.bc { background: var(--bg); padding: 2rem 1.75rem; }
+.bc-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: #4A9A7A; line-height: 1; margin-bottom: .5rem; }
+.bc-label { font-size: 13px; color: #C8C3B8; margin-bottom: .2rem; }
+.bc-sub { font-size: 11px; color: var(--dim); }
 
 .problema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 4rem; align-items: start; }
 .pain { padding: 2rem; border-left: 1px solid var(--accent-border); }
