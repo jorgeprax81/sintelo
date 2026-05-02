@@ -425,6 +425,20 @@ function formatDate(date: Date) {
   </div>
 </section>
 
+<!-- HEATMAP -->
+<section class="section">
+  <div class="label">Heatmap de priorización · impacto vs facilidad de captura</div>
+  <p class="section-body" style="margin-bottom:2rem">No todos los levers se ejecutan igual. Esta matriz prioriza por dos dimensiones: cuánto mueve el ROIC y qué tan rápido se captura. Las burbujas en la esquina superior izquierda son las primeras olas de implementación; las de la derecha requieren transformación organizacional más larga.</p>
+  <div style="position:relative;height:380px;margin-bottom:1rem;">
+    <canvas id="hmChart" role="img" aria-label="Heatmap de priorización de levers por impacto en ROIC y tiempo de captura"></canvas>
+  </div>
+  <div class="hm-legend">
+    <span class="leg-item"><span class="leg-dot" style="background:#7F77DD"></span>Palanca A · Margen</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#85B7EB"></span>Palanca B · Capital</span>
+    <span class="leg-item" style="margin-left:1.5rem;color:var(--dim);font-style:italic">Tamaño de burbuja = facilidad de ejecución</span>
+  </div>
+</section>
+
 <!-- BUSINESS CASE -->
 <section class="section">
   <div class="label">Business case total</div>
@@ -717,6 +731,83 @@ function formatDate(date: Date) {
 })();
 </script>
 
+<script define:vars={{
+  heatmapLevers: bridge.levers.map((lever) => ({
+    nombre: lever.nombre,
+    palanca: lever.palanca,
+    color: lever.palanca === 'A - Margen' ? '#7F77DD' : '#85B7EB',
+    delta_pp: lever.delta_pp,
+    tiempo: lever.tiempo_captura_meses,
+    facilidad: lever.facilidad_captura
+  }))
+}}>
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+  s.onload = () => {
+    const data = heatmapLevers.map(l => ({
+      x: l.tiempo,
+      y: l.delta_pp,
+      r: l.facilidad * 2.5,
+      nombre: l.nombre,
+      palanca: l.palanca,
+      facilidad: l.facilidad
+    }));
+
+    new Chart(document.getElementById('hmChart'), {
+      type: 'bubble',
+      data: {
+        datasets: heatmapLevers.map((l, i) => ({
+          label: l.nombre,
+          data: [data[i]],
+          backgroundColor: l.color + 'CC',
+          borderColor: l.color,
+          borderWidth: 1.5
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const d = ctx.raw;
+                return [
+                  d.nombre,
+                  'Impacto: +' + d.y.toFixed(1) + 'pp',
+                  'Captura: ' + d.x + ' meses',
+                  'Facilidad: ' + d.facilidad + '/10'
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Tiempo de captura (meses)', color: '#7A7470', font: { size: 11 } },
+            min: 0, max: 24,
+            ticks: { color: '#7A7470', font: { size: 10 }, stepSize: 6, callback: v => v + 'm' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            border: { color: 'rgba(255,255,255,.06)' },
+            reverse: true
+          },
+          y: {
+            title: { display: true, text: 'Impacto en ROIC (pp)', color: '#7A7470', font: { size: 11 } },
+            min: 0,
+            ticks: { color: '#7A7470', font: { size: 10 }, callback: v => '+' + v + 'pp' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            border: { color: 'rgba(255,255,255,.06)' }
+          }
+        }
+      }
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
 </Layout>
 
 <style>
@@ -769,6 +860,8 @@ function formatDate(date: Date) {
 .bridge-inline-total strong { font-size: 20px; color: #F0EBE0; }
 
 .wf-legend { display: flex; gap: 1.5rem; font-size: 12px; color: var(--dim); }
+.hm-legend { display: flex; gap: 1.5rem; font-size: 12px; color: var(--dim); flex-wrap: wrap; align-items: center; }
+
 .leg-item { display: flex; align-items: center; gap: .4rem; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
