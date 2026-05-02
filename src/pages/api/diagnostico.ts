@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
       : '';
 
     const pool = new Pool({
-      connectionString: import.meta.env.DATABASE_URL,
+      connectionString: process.env.ADVENTUREWORKS_DATABASE_URL,
       ssl: { rejectUnauthorized: false }
     });
 
