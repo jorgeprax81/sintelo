@@ -348,6 +348,7 @@ function formatDate(date: Date) {
 <!-- WATERFALL -->
 <section class="section">
   <div class="label">Waterfall de valor · ROIC actual → ROIC potencial</div>
+  <h2>Así se ve el diagnóstico en números.</h2>
   <p class="section-body" style="margin-bottom:2rem">Así se ve un diagnóstico Sintelo en acción. Cada barra muestra cuánto sube el ROIC al activar una palanca específica. La barra azul es el punto de partida. Las verdes son las palancas con mayor impacto cuantificado. La barra final es el ROIC potencial — lo que la empresa puede generar con el capital que ya tiene.</p>
   <div style="position:relative;height:320px;margin-bottom:1rem;">
     <canvas id="wfChart" role="img" aria-label={`Waterfall ROIC de ${bridge.roic_actual.toFixed(1)}% a ${bridge.roic_potencial.toFixed(1)}% via tres levers`}>
@@ -364,6 +365,7 @@ function formatDate(date: Date) {
 <!-- LEVERS -->
 <section class="section">
   <div class="label">Levers prioritarios · impacto cuantificado</div>
+  <h2>Tres palancas. Impacto cuantificado.</h2>
   <div class="levers">
     <div class="lever-header">
       <span>Lever</span>
@@ -385,6 +387,7 @@ function formatDate(date: Date) {
 <!-- BUSINESS CASE -->
 <section class="section">
   <div class="label">Business case total</div>
+  <h2>El valor capturable en tres años.</h2>
   <div class="bc-grid">
     <div class="bc">
       <div class="bc-val">${(bridge.total_valor / 1000).toFixed(1)}B USD</div>
@@ -402,7 +405,7 @@ function formatDate(date: Date) {
       <div class="bc-sub">En 3 años</div>
     </div>
   </div>
-  <p class="section-body" style="margin-top:2rem;font-style:italic">En 3 años de implementación, Big Retailer puede liberar ${(bridge.total_valor / 1000).toFixed(1)}B USD y duplicar su ROIC — sin más capital, sin más ventas. Solo redistribuyendo el capital que ya tiene hacia donde genera retorno. La metodología es la misma para empresas de cualquier tamaño; los números escalan a la realidad de cada negocio.</p>
+  <p class="section-body" style="margin-top:2rem;font-style:italic">La metodología es la misma para empresas de cualquier tamaño. Los números escalan a la realidad de cada negocio — en pesos, no en dólares.</p>
 </section>
 
 <!-- DEMO -->
@@ -733,12 +736,12 @@ function formatDate(date: Date) {
 .lname { font-size: 12px; color: #C8C3B8; }
 .lbar-wrap { height: 18px; background: rgba(255,255,255,.03); }
 .lbar { height: 100%; opacity: .65; }
-.lval { font-size: 12px; color: #4A9A7A; text-align: right; font-weight: 500; }
-.lroic { font-size: 12px; color: #4A9A7A; text-align: right; }
+.lval { font-size: 12px; color: var(--accent); text-align: right; font-weight: 500; }
+.lroic { font-size: 12px; color: var(--accent); text-align: right; }
 
 .bc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: .5px solid var(--border); }
 .bc { background: var(--bg); padding: 2rem 1.75rem; }
-.bc-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: #4A9A7A; line-height: 1; margin-bottom: .5rem; }
+.bc-val { font-family: var(--serif); font-size: 42px; font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: .5rem; }
 .bc-label { font-size: 13px; color: #C8C3B8; margin-bottom: .2rem; }
 .bc-sub { font-size: 11px; color: var(--dim); }
 
