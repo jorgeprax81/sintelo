@@ -57,7 +57,7 @@ const actualBalance: BalanceRow = {
 
 const actualIndex = incomeRows.findIndex((row) => row.periodo === actualIncome.periodo);
 const rowsForEngine = actualIndex >= 0 ? incomeRows.slice(0, actualIndex + 1) : incomeRows;
-const leversEngine = calcLevers(rowsForEngine, actualBalance);
+const leversEngine = calcLevers(rowsForEngine, actualBalance, cf);
 const bridge = buildValueBridge(actualIncome, actualBalance, leversEngine);
 
 const leverRoiPp = bridge.levers.map((lever) => lever.delta_pp);

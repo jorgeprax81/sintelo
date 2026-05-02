@@ -11,6 +11,11 @@ export interface IncomeRow {
   capex?: NumericLike;
 }
 
+export interface CashFlowRow {
+  periodo?: string;
+  capex?: NumericLike;
+}
+
 export interface BalanceRow {
   periodo?: string;
   ppe: NumericLike;
@@ -88,7 +93,7 @@ export function calcROIC(income: IncomeRow, balance: BalanceRow): number {
   return safeDivide(nopat, investedCapital);
 }
 
-export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
+export function calcLevers(rows: IncomeRow[], balance: BalanceRow, cashflow?: CashFlowRow[]): Lever[] {
   if (rows.length === 0) return [];
 
   const actual = rows[rows.length - 1];
@@ -109,10 +114,12 @@ export function calcLevers(rows: IncomeRow[], balance: BalanceRow): Lever[] {
 
   const leverSga = Math.max(0, (ratioActual - ratioHistMin) * revActual);
 
-  const capexSeries = rows
-    .slice(-4)
-    .map((row) => Math.abs(toNumber(row.capex)))
-    .filter((value) => value > 0);
+  const capexSeries = Array.isArray(cashflow)
+    ? cashflow
+      .slice(-4)
+      .map((row) => Math.abs(toNumber(row.capex)))
+      .filter((value) => value > 0)
+    : [];
   const capexPromedio4 = capexSeries.length > 0
     ? capexSeries.reduce((sum, value) => sum + value, 0) / capexSeries.length
     : 0;

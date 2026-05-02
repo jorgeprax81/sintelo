@@ -78,7 +78,7 @@ export const GET: APIRoute = async () => {
     const actualIndex = incomeRows.findIndex((row) => row.periodo === actualIncome.periodo);
     const rowsForEngine = actualIndex >= 0 ? incomeRows.slice(0, actualIndex + 1) : incomeRows;
 
-    const levers = calcLevers(rowsForEngine, actualBalance);
+    const levers = calcLevers(rowsForEngine, actualBalance, cashFlowRes.rows);
     const bridge = buildValueBridge(actualIncome, actualBalance, levers);
 
     return new Response(JSON.stringify({

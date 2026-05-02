@@ -14,6 +14,10 @@ const incomeRows = await pool.query(`
   SELECT * FROM clientes.income_statement
   WHERE empresa_id = 1 ORDER BY periodo ASC
 `);
+const cashflowRows = await pool.query(`
+  SELECT * FROM clientes.cash_flow
+  WHERE empresa_id = 1 ORDER BY periodo ASC
+`);
 const balanceRowsRes = await pool.query(`
   SELECT * FROM clientes.balance_sheet
   WHERE empresa_id = 1 ORDER BY periodo ASC
@@ -34,10 +38,9 @@ const balanceForEngine = {
   ...balance,
   inventario_promedio_anos_1_a_6: inventarioPromedioAnios1a6
 };
-const levers = calcLevers(rows, balanceForEngine);
+const levers = calcLevers(rows, balanceForEngine, cashflowRows.rows);
 const bridge = buildValueBridge(actual, balanceForEngine, levers);
 const roicActualDirect = calcROIC(actual, balanceForEngine) * 100;
-const maxLeverImpact = Math.max(...bridge.levers.map((lever) => lever.impacto), 1);
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -338,7 +341,7 @@ function formatDate(date: Date) {
             <div class="bridge-inline-row-bar-wrap">
               <div
                 class="bridge-inline-row-bar"
-                style={`width:${(lever.impacto / maxLeverImpact) * 100}%;background:${lever.color}`}
+                style={`width:${(lever.impacto / Math.max(1, bridge.total_valor)) * 100}%;background:${lever.color}`}
               ></div>
             </div>
             <div class="bridge-inline-row-value">+${(lever.impacto / 1000).toFixed(1)}B · +{lever.delta_pp.toFixed(1)}pp</div>
