@@ -1,66 +1,82 @@
 ---
-const res = await fetch(new URL('/api/value-bridge', Astro.url));
-const data = await res.json();
+const company = 'Big Retailer Inc.';
+const roicActual = 10.1;
+const roicPotencial = 13.5;
+const deltaRoicPp = +(roicPotencial - roicActual).toFixed(1);
 
-const company = data.empresa;
-const revenueM = Number(data.revenue);
-const currentEbitdaM = Number(data.ebitda_actual);
-const currentMargin = Number(data.margen_actual);
-const potentialEbitdaM = Number(data.ebitda_potencial);
-const potentialMargin = Number(data.margen_potencial);
-const levers = Array.isArray(data.levers)
-  ? data.levers.map((lever: any, index: number) => ({
-      key: `${index}-${String(lever.nombre || 'lever').toLowerCase().replace(/\s+/g, '-')}`,
-      name: String(lever.nombre || ''),
-      description: String(lever.descripcion || ''),
-      impactM: Number(lever.impacto || 0),
-      color: String(lever.color || '#7F77DD')
-    }))
-  : [];
+const baseValueM = 0;
 
-const deltaMarginPp = +(potentialMargin - currentMargin).toFixed(1);
-const grossLeverImpactM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
-const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
+const levers = [
+  {
+    key: 'sga-overhead',
+    name: 'Reducir SG&A / Overhead',
+    palanca: 'A (Margen)',
+    description: 'SG&A crecio 25% en 8 anos. Revenue crecio 15%.',
+    impactM: 11000,
+    color: '#7F77DD',
+    isAnnual: false
+  },
+  {
+    key: 'roic-capex',
+    name: 'Criterio ROIC en capex',
+    palanca: 'B (Capital)',
+    description: '$126B en capex en 4 anos sin criterio de ROIC minimo',
+    impactM: 8000,
+    color: '#85B7EB',
+    isAnnual: true
+  },
+  {
+    key: 'inventario',
+    name: 'Normalizar inventario',
+    palanca: 'B (Capital)',
+    description: 'Inventario salto $20B en Year 7 sin crecimiento de revenue',
+    impactM: 17000,
+    color: '#9FE1CB',
+    isAnnual: false
+  }
+];
+
+const totalBridgeM = levers.reduce((sum, lever) => sum + lever.impactM, 0);
 ---
 
 <section
   class="value-bridge"
-  data-current={currentEbitdaM}
-  data-potential={potentialEbitdaM}
+  data-current={baseValueM}
+  data-potential={totalBridgeM}
 >
   <header class="vb-header">
     <div>
       <p class="vb-eyebrow">Value Bridge</p>
       <h3>{company}</h3>
-      <p class="vb-sub">Revenue base: ${revenueM.toLocaleString()}M</p>
+      <p class="vb-sub">Business case total del demo: ${(totalBridgeM / 1000).toFixed(1)}B</p>
     </div>
     <div class="vb-metrics">
       <div class="vb-metric">
-        <span class="vb-label">Margen actual</span>
-        <strong>{currentMargin.toFixed(1)}%</strong>
+        <span class="vb-label">ROIC actual</span>
+        <strong>{roicActual.toFixed(1)}%</strong>
       </div>
       <div class="vb-metric">
-        <span class="vb-label">Margen potencial</span>
-        <strong>{potentialMargin.toFixed(1)}%</strong>
+        <span class="vb-label">ROIC potencial</span>
+        <strong>{roicPotencial.toFixed(1)}%</strong>
       </div>
       <div class="vb-metric vb-metric-delta">
-        <span class="vb-label">Delta</span>
-        <strong>+{deltaMarginPp.toFixed(1)} pp</strong>
+        <span class="vb-label">Delta ROIC</span>
+        <strong>+{deltaRoicPp.toFixed(1)}pp ROIC</strong>
       </div>
     </div>
   </header>
 
   <div class="vb-chart">
-    <div class="vb-bars">
+    <div class="vb-bars" style={`grid-template-columns: repeat(${levers.length + 2}, minmax(120px, 1fr));`}>
       <div
         class="vb-bar-col vb-base"
         data-bar
         data-kind="base"
-        data-value={currentEbitdaM}
+        data-value={baseValueM}
         data-color="#0F2742"
-        data-label="EBITDA actual"
+        data-label="Base"
       >
-        <span class="vb-top-label">EBITDA actual</span>
+        <span class="vb-top-label">Base</span>
         <div class="vb-bar"><span class="vb-value"></span></div>
       </div>
 
@@ -73,7 +89,7 @@ const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
           data-color={lever.color}
           data-label={lever.name}
         >
-          <span class="vb-top-label">{lever.name}</span>
+          <span class="vb-top-label">{lever.name}<br />{lever.palanca}</span>
           <div class="vb-bar"><span class="vb-value"></span></div>
         </div>
       ))}
@@ -82,11 +98,11 @@ const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
         class="vb-bar-col vb-final"
         data-bar
         data-kind="final"
-        data-value={potentialEbitdaM}
+        data-value={totalBridgeM}
         data-color="#54B284"
-        data-label="EBITDA potencial"
+        data-label="Total"
       >
-        <span class="vb-top-label">EBITDA potencial</span>
+        <span class="vb-top-label">Business case total</span>
         <div class="vb-bar"><span class="vb-value"></span></div>
       </div>
     </div>
@@ -98,21 +114,18 @@ const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
         <span class="vb-dot" style={`--dot:${lever.color}`}></span>
         <div class="vb-lever-copy">
           <div class="vb-lever-title">{lever.name}</div>
+          <div class="vb-lever-desc">Palanca {lever.palanca}</div>
           <div class="vb-lever-desc">{lever.description}</div>
         </div>
-        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B</strong>
+        <strong class="vb-lever-value">+${(lever.impactM / 1000).toFixed(1)}B{lever.isAnnual ? '/ano' : ''}</strong>
       </li>
     ))}
   </ul>
 
   <footer class="vb-total">
     <div class="vb-total-row">
-      <span>Total bruto de levers</span>
-      <strong>+${(grossLeverImpactM / 1000).toFixed(1)}B</strong>
-    </div>
-    <div class="vb-total-row">
-      <span>Delta neto EBITDA actual a potencial</span>
-      <strong>+${(netEbitdaDeltaM / 1000).toFixed(1)}B</strong>
+      <span>Total value bridge (business case demo)</span>
+      <strong>+${(totalBridgeM / 1000).toFixed(1)}B</strong>
     </div>
   </footer>
 
@@ -169,7 +182,8 @@ const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
 
           if (valueNode) {
             const prefix = col.dataset.kind === 'lever' ? '+' : '';
-            valueNode.textContent = `${prefix}${formatBillions(value)}`;
+            const suffix = col.dataset.label === 'Criterio ROIC en capex' ? '/ano' : '';
+            valueNode.textContent = `${prefix}${formatBillions(value)}${suffix}`;
           }
         });
       });
@@ -248,7 +262,6 @@ const netEbitdaDeltaM = potentialEbitdaM - currentEbitdaM;
 
 .vb-bars {
   display: grid;
-  grid-template-columns: repeat(7, minmax(120px, 1fr));
   gap: 0.9rem;
   align-items: end;
   min-height: 24rem;
