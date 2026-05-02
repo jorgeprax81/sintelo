@@ -24,13 +24,13 @@ const balanceRowsRes = await pool.query(`
 `);
 const balanceRowRes = await pool.query(`
   SELECT * FROM clientes.balance_sheet
-  WHERE empresa_id = 1 ORDER BY periodo DESC LIMIT 1
+  WHERE empresa_id = 1 ORDER BY periodo DESC LIMIT 2
 `);
 
 const rows = incomeRows.rows;
 const actual = rows[rows.length - 1];
 const balanceRows = balanceRowsRes.rows;
-const balance = balanceRowRes.rows[0];
+const balance = balanceRowRes.rows[1];
 const inventarioPromedioAnios1a6 = balanceRows
   .slice(0, 6)
   .reduce((sum, row) => sum + Number(row.inventario || 0), 0) / Math.max(1, Math.min(6, balanceRows.length));
@@ -334,6 +334,17 @@ function formatDate(date: Date) {
         </div>
       </div>
       <div class="bridge-inline-note">ROIC directo calculado: {roicActualDirect.toFixed(1)}%</div>
+      <div class="vb-bars-section">
+        {bridge.levers.map((lever) => (
+          <div class="vb-bar-row">
+            <div class="vb-bar-label">{lever.nombre}</div>
+            <div class="vb-bar-track">
+              <div class="vb-bar-fill" style={`width:${Math.round(lever.impacto/bridge.total_valor*100)}%;background:${lever.color}`}></div>
+            </div>
+            <div class="vb-bar-value">+${(lever.impacto/1000).toFixed(1)}B · +{lever.delta_pp.toFixed(1)}pp</div>
+          </div>
+        ))}
+      </div>
       <div class="bridge-inline-bars">
         {bridge.levers.map((lever) => (
           <div class="bridge-inline-row">
@@ -599,6 +610,12 @@ function formatDate(date: Date) {
 .bridge-inline-metric span { display: block; font-size: 11px; color: var(--dim); margin-bottom: 0.2rem; }
 .bridge-inline-metric strong { font-size: 18px; color: #E8E3D8; }
 .bridge-inline-note { font-size: 12px; color: var(--dim); margin-bottom: 1rem; }
+.vb-bars-section { margin-bottom: 1rem; }
+.vb-bar-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem; }
+.vb-bar-label { font-size:0.75rem; width:10rem; flex-shrink:0; color:var(--dim); }
+.vb-bar-track { flex:1; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+.vb-bar-fill { height:100%; border-radius:4px; transition:width 0.3s; }
+.vb-bar-value { font-size:0.75rem; font-weight:500; white-space:nowrap; color:var(--text); }
 .bridge-inline-bars { display: flex; flex-direction: column; gap: 0.7rem; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 1rem 0; }
 .bridge-inline-row { display: grid; grid-template-columns: 220px 1fr auto; gap: 1rem; align-items: center; }
 .bridge-inline-row-title { font-size: 12px; color: #C8C3B8; }
