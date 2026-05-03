@@ -249,36 +249,6 @@ function formatDate(date: Date) {
 
 </section>
 
-<!-- 10 LEVERS -->
-<section class="section">
-  <div class="label">La metodología</div>
-  <h2>Analizamos la cadena de valor completa.</h2>
-  <p class="section-body">El diagnóstico define cuáles de los 10 levers tienen mayor impacto en su empresa específica.</p>
-  <div class="levers-grid">
-    <div class="lever-group">
-      <div class="lever-group-title">Revenue improvement</div>
-      <div class="lever-item">Pricing optimization</div>
-      <div class="lever-item">Sales enhancement</div>
-    </div>
-    <div class="lever-group">
-      <div class="lever-group-title">Reducción de costos</div>
-      <div class="lever-item">Procurement</div>
-      <div class="lever-item">Producción</div>
-      <div class="lever-item">Distribución</div>
-      <div class="lever-item">Postventa</div>
-      <div class="lever-item">Overhead</div>
-      <div class="lever-item">IT</div>
-      <div class="lever-item">Complejidad de producto</div>
-      <div class="lever-item">Costos de producto</div>
-    </div>
-    <div class="lever-group">
-      <div class="lever-group-title">Capital</div>
-      <div class="lever-item">Working capital</div>
-      <div class="lever-item">Optimización de capex</div>
-    </div>
-  </div>
-</section>
-
 <!-- RESULTADOS -->
 <section id="resultados" class="section">
   <div class="label">Resultados típicos</div>
@@ -352,6 +322,36 @@ function formatDate(date: Date) {
   </div>
 </section>
 
+<!-- 10 LEVERS -->
+<section class="section">
+  <div class="label">La metodología</div>
+  <h2>Analizamos la cadena de valor completa.</h2>
+  <p class="section-body">El diagnóstico define cuáles de los 10 levers tienen mayor impacto en su empresa específica.</p>
+  <div class="levers-grid">
+    <div class="lever-group">
+      <div class="lever-group-title">Revenue improvement</div>
+      <div class="lever-item">Pricing optimization</div>
+      <div class="lever-item">Sales enhancement</div>
+    </div>
+    <div class="lever-group">
+      <div class="lever-group-title">Reducción de costos</div>
+      <div class="lever-item">Procurement</div>
+      <div class="lever-item">Producción</div>
+      <div class="lever-item">Distribución</div>
+      <div class="lever-item">Postventa</div>
+      <div class="lever-item">Overhead</div>
+      <div class="lever-item">IT</div>
+      <div class="lever-item">Complejidad de producto</div>
+      <div class="lever-item">Costos de producto</div>
+    </div>
+    <div class="lever-group">
+      <div class="lever-group-title">Capital</div>
+      <div class="lever-item">Working capital</div>
+      <div class="lever-item">Optimización de capex</div>
+    </div>
+  </div>
+</section>
+
 <!-- DEMO -->
 <section id="demo" class="section">
   <div class="label">En acción</div>
@@ -379,6 +379,29 @@ function formatDate(date: Date) {
         <div class="demo-item"><div class="demo-item-desc">{bridge.levers[2].nombre}</div><div class="demo-item-val">~${(bridge.levers[2].impacto / 1000).toFixed(1)}B</div></div>
       </div>
       <a href="/demo/big-retailer" class="btn-demo">Ver diagnóstico completo →</a>
+    </div>
+  </div>
+
+  <div class="demo-card">
+    <div class="demo-left">
+      <div class="demo-tag">Diagnóstico ROIC</div>
+      <div class="demo-company">AdventureWorks Inc.</div>
+      <p class="demo-desc">Fabricante de bicicletas · $123M en revenue · Norteamérica, Europa y Pacífico</p>
+      <div class="demo-hallazgos">
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">01</div><div class="demo-hallazgo-text">Components con 224 días de inventario — capital inmovilizado crítico</div></div>
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">02</div><div class="demo-hallazgo-text">86% del revenue concentrado en una sola categoría — fragilidad estructural</div></div>
+        <div class="demo-hallazgo"><div class="demo-hallazgo-num">03</div><div class="demo-hallazgo-text">72% de dependencia geográfica en Norteamérica — riesgo de concentración</div></div>
+      </div>
+    </div>
+    <div class="demo-right">
+      <div class="demo-impacto-label">Valor capturable estimado</div>
+      <div class="demo-impacto-val">$3.6M</div>
+      <div class="demo-impacto-sub">en tres iniciativas prioritarias</div>
+      <div class="demo-items">
+        <div class="demo-item"><div class="demo-item-desc">Reducir inventario Components de 224 a 90 días</div><div class="demo-item-val">~$2.4M</div></div>
+        <div class="demo-item"><div class="demo-item-desc">Recuperar 10pp de descuento en Components</div><div class="demo-item-val">~$1.2M</div></div>
+      </div>
+      <a href="/demo/adventureworks" class="btn-demo">Ver diagnóstico completo →</a>
     </div>
   </div>
 </section>
