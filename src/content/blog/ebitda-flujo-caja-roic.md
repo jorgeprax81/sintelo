@@ -1,11 +1,8 @@
 ---
-title: "EBITDA, flujo de caja y ROIC: las tres preguntas que un capital allocator se hace cada mes"
-description: "EBITDA mide si vendiste bien. Flujo de caja, si cobraste. ROIC, si valió la pena. Monitorear solo una crea puntos ciegos predecibles."
-pubDate: 2026-05-05
-author: "Jorge Castro"
-slug: "ebitda-flujo-caja-roic"
-category: "Capital Allocation"
-tags: ["roic", "ebitda", "flujo de caja", "capital allocation", "dupont"]
+titulo: "EBITDA, flujo de caja y ROIC: las tres preguntas que un capital allocator se hace cada mes"
+descripcion: "EBITDA mide si vendiste bien. Flujo de caja, si cobraste. ROIC, si valió la pena. Monitorear solo una crea puntos ciegos predecibles."
+fecha: 2026-05-05
+categoria: "Capital Allocation"
 ---
 
 EBITDA te dice si vendiste bien.
